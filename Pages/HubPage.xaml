@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Zinote.Pages.HubPage"
+             Title="Hubs">
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="30">
+            <Label Text="Welcome to Data Hub" FontSize="32" HorizontalOptions="Center" FontAttributes="Bold" />
+            <Label Text="Select a module to manage" FontSize="18" HorizontalOptions="Center" TextColor="Gray" />
+
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto" ColumnSpacing="20" Margin="0,30,0,0">
+                
+                <!-- Health Dictionary Hub -->
+                <Frame Grid.Column="0" HeightRequest="200" CornerRadius="15" BackgroundColor="#2E8B57" HasShadow="True">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnHubTapped" CommandParameter="health_dictionary" />
+                    </Frame.GestureRecognizers>
+                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
+                        <Label Text="⚕️" FontSize="60" HorizontalOptions="Center" />
+                        <Label Text="Health Dictionary" TextColor="White" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                        <Label Text="Sağlık Sözlüğü" TextColor="#E0E0E0" FontSize="14" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Military Dictionary Hub -->
+                <Frame Grid.Column="1" HeightRequest="200" CornerRadius="15" BackgroundColor="#4B5320" HasShadow="True">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnHubTapped" CommandParameter="military_dictionary" />
+                    </Frame.GestureRecognizers>
+                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
+                        <Label Text="⚔️" FontSize="60" HorizontalOptions="Center" />
+                        <Label Text="Military Dictionary" TextColor="White" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                        <Label Text="Askeri Sözlük" TextColor="#E0E0E0" FontSize="14" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Frame>
+
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

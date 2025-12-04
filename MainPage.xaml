@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Zinote.MainPage"
+             Title="Zinote">
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="20" RowSpacing="10">
+        <HorizontalStackLayout Grid.Row="0" Spacing="10">
+            <SearchBar x:Name="SearchBar" Placeholder="Search..." TextChanged="OnSearchBarTextChanged" HorizontalOptions="FillAndExpand" WidthRequest="200"/>
+            <Button Text="Add New" Clicked="OnAddClicked" />
+            <Button Text="Export CSV" Clicked="OnExportClicked" BackgroundColor="Green" TextColor="White" />
+            <Button Text="Export Matecat" Clicked="OnExportMatecatClicked" BackgroundColor="#007ACC" TextColor="White" />
+        </HorizontalStackLayout>
+
+        <CollectionView x:Name="ItemsCollectionView" Grid.Row="2" SelectionMode="Single" SelectionChanged="OnSelectionChanged">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Margin="0,5" Padding="10" BorderColor="Gray" CornerRadius="5">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Grid.Column="0">
+                                <Label Text="{Binding SourceTerm}" FontAttributes="Bold" FontSize="Medium" />
+                                <Label Text="{Binding TargetTerm}" TextColor="Gray" LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding Definition}" TextColor="Blue" FontSize="Small" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1" Text="Delete" Clicked="OnDeleteClicked" CommandParameter="{Binding Id}" BackgroundColor="Red" TextColor="White" HeightRequest="40" WidthRequest="80" VerticalOptions="Center" />
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+
+</ContentPage>

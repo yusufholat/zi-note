@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Zinote.Pages.ItemDetailPage"
+             Title="Item Details">
+    <VerticalStackLayout Spacing="20" Padding="30">
+        <Label Text="Source Term (EN)" FontSize="Medium" FontAttributes="Bold" />
+        <Entry x:Name="SourceTermEntry" Placeholder="Enter source term (English)" />
+
+        <Label Text="Target Term (TR)" FontSize="Medium" FontAttributes="Bold" />
+        <Entry x:Name="TargetTermEntry" Placeholder="Enter target term (Turkish)" />
+
+        <Label Text="Definition" FontSize="Medium" FontAttributes="Bold" />
+        <Editor x:Name="DefinitionEntry" Placeholder="Enter definition" HeightRequest="100" />
+
+        <HorizontalStackLayout Spacing="20" HorizontalOptions="Center">
+            <Button Text="Save" Clicked="OnSaveClicked" WidthRequest="100" />
+            <Button Text="Cancel" Clicked="OnCancelClicked" WidthRequest="100" BackgroundColor="Gray" />
+        </HorizontalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>
