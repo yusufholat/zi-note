@@ -1,41 +1,16 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:helpers="clr-namespace:Zinote.Helpers"
+             xmlns:components="clr-namespace:Zinote.Resources.Components"
              x:Class="Zinote.Pages.HubPage"
              BackgroundColor="{DynamicResource DynamicPageBackground}">
 
     <Shell.TitleView>
-        <Grid Margin="0,0,10,0">
-            <Label Text="{helpers:Translate AppName}" 
-                   FontSize="20" 
-                   FontAttributes="Bold" 
-                   VerticalOptions="Center" 
-                   HorizontalOptions="Center" 
-                   TextColor="{DynamicResource DynamicShellTitleColor}"/>
-            
-            <HorizontalStackLayout HorizontalOptions="End" VerticalOptions="Center" Spacing="15">
-                <Label x:Name="LanguageLabel" Text="EN" 
-                       FontSize="16" FontAttributes="Bold"
-                       VerticalOptions="Center"
-                       TextColor="{DynamicResource DynamicShellTitleColor}">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnLanguageClicked"/>
-                    </Label.GestureRecognizers>
-                </Label>
-                <Label Text="{DynamicResource DynamicThemeIcon}" 
-                       FontSize="22" 
-                       VerticalOptions="Center" 
-                       TextColor="{DynamicResource DynamicShellTitleColor}">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnThemeClicked"/>
-                    </Label.GestureRecognizers>
-                </Label>
-            </HorizontalStackLayout>
-        </Grid>
+        <components:HeaderView TitleText="{helpers:Translate AppName}" />
     </Shell.TitleView>
     
     <ScrollView>
-        <VerticalStackLayout Spacing="20" Padding="30">
+        <VerticalStackLayout Spacing="20" Padding="30"> 
             <Label Text="{helpers:Translate WelcomeHub}" FontSize="32" HorizontalOptions="Center" FontAttributes="Bold" TextColor="{DynamicResource DynamicPrimaryText}" />
             <Label Text="{helpers:Translate SelectModule}" FontSize="18" HorizontalOptions="Center" TextColor="{DynamicResource DynamicSecondaryText}" />
 
@@ -46,10 +21,16 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnHubTapped" CommandParameter="health_dictionary" />
                     </Border.GestureRecognizers>
-                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
-                        <Label Text="⚕️" FontSize="60" HorizontalOptions="Center" TextColor="{DynamicResource DynamicPrimaryText}"/>
-                        <Label Text="{helpers:Translate HealthDict}" TextColor="{DynamicResource DynamicPrimaryText}" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
-                        <Label Text="{helpers:Translate HealthDictSub}" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="14" HorizontalOptions="Center" />
+                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="5">
+                        <Label Text="⚕️" FontSize="50" HorizontalOptions="Center" TextColor="{DynamicResource DynamicPrimaryText}"/>
+                        <Label Text="{helpers:Translate HealthDict}" 
+                               TextColor="{DynamicResource DynamicPrimaryText}" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               HorizontalOptions="Center" 
+                               HorizontalTextAlignment="Center" 
+                               MaxLines="1" />
+                        <Label Text="{helpers:Translate HealthDictSub}" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="13" HorizontalOptions="Center" />
                     </VerticalStackLayout>
                 </Border>
 
@@ -58,10 +39,16 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnHubTapped" CommandParameter="military_dictionary" />
                     </Border.GestureRecognizers>
-                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
-                        <Label Text="⚔️" FontSize="60" HorizontalOptions="Center" TextColor="{DynamicResource DynamicPrimaryText}"/>
-                        <Label Text="{helpers:Translate MilitaryDict}" TextColor="{DynamicResource DynamicPrimaryText}" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
-                        <Label Text="{helpers:Translate MilitaryDictSub}" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="14" HorizontalOptions="Center" />
+                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="5">
+                        <Label Text="⚔️" FontSize="50" HorizontalOptions="Center" TextColor="{DynamicResource DynamicPrimaryText}"/>
+                        <Label Text="{helpers:Translate MilitaryDict}" 
+                               TextColor="{DynamicResource DynamicPrimaryText}" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               HorizontalOptions="Center" 
+                               HorizontalTextAlignment="Center" 
+                               MaxLines="1" />
+                        <Label Text="{helpers:Translate MilitaryDictSub}" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="13" HorizontalOptions="Center" />
                     </VerticalStackLayout>
                 </Border>
 

@@ -7,8 +7,13 @@
     <ActiveDebugProfile>Windows Machine</ActiveDebugProfile>
     <ActiveDebugFramework>net9.0-windows10.0.19041.0</ActiveDebugFramework>
     <IsFirstTimeProjectOpen>False</IsFirstTimeProjectOpen>
+    <SelectedPlatformGroup>Emulator</SelectedPlatformGroup>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetPlatformIdentifier)'=='iOS'">
+    <RuntimeIdentifier>iossimulator-x64</RuntimeIdentifier>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 </Project>

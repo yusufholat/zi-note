@@ -1,15 +1,15 @@
-﻿
-using Zinote.Models;
+﻿using Zinote.Models;
 using Zinote.Services;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using Zinote.Helpers;
 
-namespace Zinote;
+namespace Zinote.Pages;
 
 [QueryProperty(nameof(CollectionName), Constants.NavCollectionName)]
-public partial class MainPage : ContentPage
+public partial class DictionaryListPage : ContentPage
 {
     private readonly DataService _dataService;
     private string _collectionName = string.Empty; // Initialized empty, set via navigation
@@ -30,12 +30,22 @@ public partial class MainPage : ContentPage
         }
     }
 
-    public MainPage(DataService dataService)
+    public DictionaryListPage(DataService dataService)
     {
         InitializeComponent();
         _dataService = dataService;
         BindingContext = this;
-        UpdateLanguageLabel();
+        
+        LocalizationResourceManager.Instance.PropertyChanged += (sender, e) =>
+        {
+            // Re-trigger title update when language changes
+             Title = _collectionName switch
+            {
+                "health_dictionary" => LocalizationResourceManager.Instance["HealthDict"],
+                "military_dictionary" => LocalizationResourceManager.Instance["MilitaryDict"],
+                _ => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_collectionName.Replace("_", " "))
+            };
+        };
     }
 
     protected override async void OnAppearing()
@@ -106,34 +116,7 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private void OnThemeClicked(object sender, EventArgs e)
-    {
-        Helpers.ThemeHelper.ToggleTheme();
-    }
-    
-    private void OnLanguageClicked(object sender, EventArgs e)
-    {
-        var current = LocalizationResourceManager.Instance.CurrentCulture;
-        var newCulture = current.Name.StartsWith("tr") ? new System.Globalization.CultureInfo("en") : new System.Globalization.CultureInfo("tr");
-        LocalizationResourceManager.Instance.SetCulture(newCulture);
-        UpdateLanguageLabel();
-        
-        // Refresh Title
-         Title = _collectionName switch
-            {
-                "health_dictionary" => LocalizationResourceManager.Instance["HealthDict"],
-                "military_dictionary" => LocalizationResourceManager.Instance["MilitaryDict"],
-                _ => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_collectionName.Replace("_", " "))
-            };
-    }
-    
-    private void UpdateLanguageLabel()
-    {
-         if (LanguageLabel != null)
-        {
-            LanguageLabel.Text = LocalizationResourceManager.Instance.CurrentCulture.TwoLetterISOLanguageName.ToUpper();
-        }
-    }
+
 
     private void OnExportOptionsClicked(object sender, EventArgs e)
     {

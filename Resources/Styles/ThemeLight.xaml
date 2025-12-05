@@ -34,6 +34,7 @@
     <Color x:Key="DynamicActivityIndicatorColor">#007ACC</Color>
     <Color x:Key="DynamicShellTabBarBackground">#FFFFFF</Color>
     <Color x:Key="DynamicShellTabBarTitleColor">#007ACC</Color>
+    <Color x:Key="DynamicHeaderButtonBg">#20FFFFFF</Color>
     
     <!-- Theme Icon -->
     <x:String x:Key="DynamicThemeIcon">🌙</x:String>

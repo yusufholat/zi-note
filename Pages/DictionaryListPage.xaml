@@ -1,45 +1,19 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:helpers="clr-namespace:Zinote.Helpers"
              xmlns:models="clr-namespace:Zinote.Models"
-             xmlns:local="clr-namespace:Zinote"
-             x:Class="Zinote.MainPage"
-             x:DataType="local:MainPage"
+             xmlns:local="clr-namespace:Zinote.Pages"
+             xmlns:components="clr-namespace:Zinote.Resources.Components"
+             x:Class="Zinote.Pages.DictionaryListPage"
+             x:DataType="local:DictionaryListPage"
              Title="Zinote">
 
     <Shell.TitleView>
-        <Grid Margin="0,0,10,0">
-            <Label Text="{helpers:Translate AppName}" 
-                   FontSize="20" 
-                   FontAttributes="Bold" 
-                   VerticalOptions="Center" 
-                   HorizontalOptions="Center" 
-                   TextColor="{DynamicResource DynamicShellTitleColor}"/>
-            
-            <HorizontalStackLayout HorizontalOptions="End" VerticalOptions="Center" Spacing="15">
-                <Label x:Name="LanguageLabel" Text="EN" 
-                       FontSize="16" FontAttributes="Bold"
-                       VerticalOptions="Center"
-                       TextColor="{DynamicResource DynamicShellTitleColor}">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnLanguageClicked"/>
-                    </Label.GestureRecognizers>
-                </Label>
-                <Label Text="{DynamicResource DynamicThemeIcon}" 
-                       FontSize="22" 
-                       VerticalOptions="Center" 
-                       TextColor="{DynamicResource DynamicShellTitleColor}">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnThemeClicked"/>
-                    </Label.GestureRecognizers>
-                </Label>
-            </HorizontalStackLayout>
-        </Grid>
+        <components:HeaderView TitleText="{Binding Title}" />
     </Shell.TitleView>
 
     <Grid RowDefinitions="Auto,Auto,*" Padding="15" RowSpacing="15" BackgroundColor="{DynamicResource DynamicPageBackground}">
-        <!-- Row 0: Export -->
+        <!-- Row 0: Export --> 
         <Button Grid.Row="0" Text="{helpers:Translate ExportOptions}" Clicked="OnExportOptionsClicked" 
                 BackgroundColor="{DynamicResource DynamicAccent}" 
                 TextColor="{DynamicResource DynamicButtonText}" FontAttributes="Bold" CornerRadius="8" HeightRequest="36" Padding="15,0" 
