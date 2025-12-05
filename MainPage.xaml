@@ -5,12 +5,16 @@
              Title="Zinote">
 
     <Grid RowDefinitions="Auto,Auto,*" Padding="20" RowSpacing="10">
-        <HorizontalStackLayout Grid.Row="0" Spacing="10">
-            <SearchBar x:Name="SearchBar" Placeholder="Search..." TextChanged="OnSearchBarTextChanged" HorizontalOptions="FillAndExpand" WidthRequest="200"/>
-            <Button Text="Add New" Clicked="OnAddClicked" />
-            <Button Text="Export CSV" Clicked="OnExportClicked" BackgroundColor="Green" TextColor="White" />
-            <Button Text="Export Matecat" Clicked="OnExportMatecatClicked" BackgroundColor="#007ACC" TextColor="White" />
+        <!-- Row 0: Export Buttons (Right Aligned) -->
+        <HorizontalStackLayout Grid.Row="0" Spacing="10" HorizontalOptions="End">
+            <Button Text="Export Options" Clicked="OnExportOptionsClicked" BackgroundColor="#007ACC" TextColor="White" FontAttributes="Bold" />
         </HorizontalStackLayout>
+
+        <!-- Row 1: Search & Add (Full Width) -->
+        <Grid Grid.Row="1" ColumnDefinitions="*, Auto" ColumnSpacing="10">
+            <SearchBar x:Name="SearchBar" Grid.Column="0" Placeholder="Search..." TextChanged="OnSearchBarTextChanged" HorizontalOptions="FillAndExpand"/>
+            <Button Grid.Column="1" Text="Add New" Clicked="OnAddClicked" />
+        </Grid>
 
         <CollectionView x:Name="ItemsCollectionView" Grid.Row="2" SelectionMode="Single" SelectionChanged="OnSelectionChanged">
             <CollectionView.ItemTemplate>
@@ -20,7 +24,6 @@
                             <VerticalStackLayout Grid.Column="0">
                                 <Label Text="{Binding SourceTerm}" FontAttributes="Bold" FontSize="Medium" />
                                 <Label Text="{Binding TargetTerm}" TextColor="Gray" LineBreakMode="TailTruncation" />
-                                <Label Text="{Binding Definition}" TextColor="Blue" FontSize="Small" />
                             </VerticalStackLayout>
                             <Button Grid.Column="1" Text="Delete" Clicked="OnDeleteClicked" CommandParameter="{Binding Id}" BackgroundColor="Red" TextColor="White" HeightRequest="40" WidthRequest="80" VerticalOptions="Center" />
                         </Grid>
@@ -28,6 +31,38 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <!-- Use Grid.RowSpan="3" to cover the entire page content -->
+        <Grid x:Name="ExportOverlay" Grid.Row="0" Grid.RowSpan="3" BackgroundColor="#CC000000" IsVisible="False" ZIndex="999">
+            <Frame BackgroundColor="White" CornerRadius="10" HorizontalOptions="Center" VerticalOptions="Center" Padding="25" WidthRequest="320">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Export Options" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="Black" Margin="0,0,0,10"/>
+
+                    <!-- Basic -->
+                    <Label Text="Basic Data" FontSize="12" TextColor="Gray" FontAttributes="Bold"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Text="CSV" Clicked="OnExportFormatClicked" CommandParameter="Basic CSV" BackgroundColor="#f0f0f0" TextColor="Black" BorderColor="#ccc" BorderWidth="1"/>
+                        <Button Grid.Column="1" Text="Excel" Clicked="OnExportFormatClicked" CommandParameter="Basic Excel" BackgroundColor="#f0f0f0" TextColor="Black" BorderColor="#ccc" BorderWidth="1"/>
+                    </Grid>
+
+                    <!-- Matecat -->
+                    <Label Text="Matecat" FontSize="12" TextColor="Gray" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Text="CSV" Clicked="OnExportFormatClicked" CommandParameter="Matecat CSV" BackgroundColor="#e1f5fe" TextColor="#0277bd" BorderColor="#0277bd" BorderWidth="1"/>
+                        <Button Grid.Column="1" Text="Excel" Clicked="OnExportFormatClicked" CommandParameter="Matecat Excel" BackgroundColor="#e1f5fe" TextColor="#0277bd" BorderColor="#0277bd" BorderWidth="1"/>
+                    </Grid>
+
+                    <!-- Smartcat -->
+                    <Label Text="Smartcat" FontSize="12" TextColor="Gray" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Text="CSV" Clicked="OnExportFormatClicked" CommandParameter="Smartcat CSV" BackgroundColor="#fff3e0" TextColor="#ef6c00" BorderColor="#ef6c00" BorderWidth="1"/>
+                        <Button Grid.Column="1" Text="Excel" Clicked="OnExportFormatClicked" CommandParameter="Smartcat Excel" BackgroundColor="#fff3e0" TextColor="#ef6c00" BorderColor="#ef6c00" BorderWidth="1"/>
+                    </Grid>
+
+                    <Button Text="Close" Clicked="OnExportOverlayClose" BackgroundColor="#d32f2f" TextColor="White" Margin="0,20,0,0"/>
+                </VerticalStackLayout>
+            </Frame>
+        </Grid>
     </Grid>
 
 </ContentPage>

@@ -6,7 +6,7 @@ namespace Zinote.Pages;
 
 [QueryProperty(nameof(ItemId), "ItemId")]
 [QueryProperty(nameof(CollectionName), "CollectionName")]
-public partial class ItemDetailPage : ContentPage
+public partial class ItemDetailPage : ContentPage, IQueryAttributable
 {
     private readonly DataService _dataService;
     private DictionaryItem _item;
@@ -22,11 +22,7 @@ public partial class ItemDetailPage : ContentPage
     public string ItemId
     {
         get => _itemId;
-        set
-        {
-            _itemId = value;
-            LoadItem(value);
-        }
+        set => _itemId = value;
     }
 
     public ItemDetailPage(DataService dataService)
@@ -35,18 +31,47 @@ public partial class ItemDetailPage : ContentPage
         _dataService = dataService;
     }
 
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (query.TryGetValue("CollectionName", out var collectionName))
+        {
+            _collectionName = Uri.UnescapeDataString(collectionName.ToString());
+        }
+
+        if (query.TryGetValue("ItemId", out var itemId))
+        {
+            _itemId = Uri.UnescapeDataString(itemId.ToString());
+            LoadItem(_itemId);
+        }
+    }
+
     private async void LoadItem(string id)
     {
-        if (!string.IsNullOrEmpty(id))
+        if (string.IsNullOrEmpty(id))
+            return;
+
+        try
         {
-             _item = await _dataService.GetByIdAsync(_collectionName, id);
+            _item = await _dataService.GetByIdAsync(_collectionName, id);
             
             if (_item != null)
             {
-                SourceTermEntry.Text = _item.SourceTerm;
-                TargetTermEntry.Text = _item.TargetTerm;
-                DefinitionEntry.Text = _item.Definition;
+                Dispatcher.Dispatch(() =>
+                {
+                    SourceTermEntry.Text = _item.SourceTerm;
+                    TargetTermEntry.Text = _item.TargetTerm;
+                    DefinitionEntry.Text = _item.Definition;
+                    DomainEntry.Text = _item.Domain;
+                    SubDomainEntry.Text = _item.SubDomain;
+                    NotesEntry.Text = _item.Notes;
+                    ExampleEntry.Text = _item.ExampleOfUse;
+                    ForbiddenSwitch.IsToggled = _item.Forbidden;
+                });
             }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Failed to load item: {ex.Message}", "OK");
         }
     }
 
@@ -66,7 +91,13 @@ public partial class ItemDetailPage : ContentPage
                 {
                     SourceTerm = SourceTermEntry.Text,
                     TargetTerm = TargetTermEntry.Text,
-                    Definition = DefinitionEntry.Text
+                    Definition = DefinitionEntry.Text,
+                    Domain = DomainEntry.Text,
+                    SubDomain = SubDomainEntry.Text,
+                    Notes = NotesEntry.Text,
+                    ExampleOfUse = ExampleEntry.Text,
+                    Forbidden = ForbiddenSwitch.IsToggled,
+                    ModifiedAt = DateTime.UtcNow
                 };
                 await _dataService.AddAsync(_collectionName, _item);
             }
@@ -75,6 +106,12 @@ public partial class ItemDetailPage : ContentPage
                 _item.SourceTerm = SourceTermEntry.Text;
                 _item.TargetTerm = TargetTermEntry.Text;
                 _item.Definition = DefinitionEntry.Text;
+                _item.Domain = DomainEntry.Text;
+                _item.SubDomain = SubDomainEntry.Text;
+                _item.Notes = NotesEntry.Text;
+                _item.ExampleOfUse = ExampleEntry.Text;
+                _item.Forbidden = ForbiddenSwitch.IsToggled;
+                _item.ModifiedAt = DateTime.UtcNow;
                 await _dataService.UpdateAsync(_collectionName, _item);
             }
 

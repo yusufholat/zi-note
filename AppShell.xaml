@@ -8,7 +8,6 @@
     Shell.FlyoutBehavior="Disabled">
 
     <ShellContent
-        Title="Hub"
         ContentTemplate="{DataTemplate pages:HubPage}"
         Route="HubPage" />
 

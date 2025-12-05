@@ -2,6 +2,8 @@
 using Zinote.Models;
 using Zinote.Services;
 using System.Collections.ObjectModel;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Zinote;
 
@@ -10,6 +12,7 @@ public partial class MainPage : ContentPage
 {
     private readonly DataService _dataService;
     private string _collectionName = "dictionary_items"; // Default
+    private CancellationTokenSource _debounceCts;
 
     public string CollectionName
     {
@@ -17,7 +20,7 @@ public partial class MainPage : ContentPage
         set
         {
             _collectionName = value;
-            Title = $"{char.ToUpper(value[0]) + value.Substring(1)} Manager";
+            Title = value.ToLower();
             // Reload data when collection changes
             _ = LoadDataAsync();
         }
@@ -44,7 +47,22 @@ public partial class MainPage : ContentPage
 
     private async void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
     {
-        await LoadDataAsync();
+        _debounceCts?.Cancel();
+        _debounceCts = new CancellationTokenSource();
+        var token = _debounceCts.Token;
+
+        try
+        {
+            await Task.Delay(500, token);
+            if (!token.IsCancellationRequested)
+            {
+                await LoadDataAsync();
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            // Ignore cancellation
+        }
     }
 
     private async void OnAddClicked(object sender, EventArgs e)
@@ -75,29 +93,61 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private async void OnExportClicked(object sender, EventArgs e)
+    private void OnExportOptionsClicked(object sender, EventArgs e)
     {
-        try
-        {
-            var filePath = await _dataService.ExportToCsvAsync(_collectionName);
-            await DisplayAlert("Success", $"Data exported to:\n{filePath}", "OK");
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Error", $"Export failed: {ex.Message}", "OK");
-        }
+        // Show the custom overlay
+        ExportOverlay.IsVisible = true;
     }
 
-    private async void OnExportMatecatClicked(object sender, EventArgs e)
+    private void OnExportOverlayClose(object sender, EventArgs e)
     {
-        try
+        // Hide the custom overlay
+        ExportOverlay.IsVisible = false;
+    }
+
+    private async void OnExportFormatClicked(object sender, EventArgs e)
+    {
+        if (sender is Button button && button.CommandParameter is string action)
         {
-            var filePath = await _dataService.ExportToMatecatAsync(_collectionName);
-            await DisplayAlert("Success", $"Matecat data exported to:\n{filePath}", "OK");
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Error", $"Export failed: {ex.Message}", "OK");
+            // Close overlay immediately or after operation? Usually better to close immediately
+            // But if there is an error, maybe keep it open?
+            // Let's close it first for smoother UX
+            ExportOverlay.IsVisible = false;
+
+            try
+            {
+                string filePath = "";
+                switch (action)
+                {
+                    case "Basic CSV":
+                        filePath = await _dataService.ExportToCsvAsync(_collectionName);
+                        break;
+                    case "Basic Excel":
+                        filePath = await _dataService.ExportToExcelAsync(_collectionName);
+                        break;
+                    case "Matecat CSV":
+                        filePath = await _dataService.ExportToMatecatAsync(_collectionName);
+                        break;
+                    case "Matecat Excel":
+                        filePath = await _dataService.ExportToMatecatExcelAsync(_collectionName);
+                        break;
+                    case "Smartcat CSV":
+                        filePath = await _dataService.ExportToSmartcatCsvAsync(_collectionName);
+                        break;
+                    case "Smartcat Excel":
+                        filePath = await _dataService.ExportToSmartcatExcelAsync(_collectionName);
+                        break;
+                }
+
+                if (!string.IsNullOrEmpty(filePath))
+                {
+                    await DisplayAlert("Success", $"Data exported to:\n{filePath}", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Export failed: {ex.Message}", "OK");
+            }
         }
     }
 }
