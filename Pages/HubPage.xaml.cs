@@ -10,12 +10,14 @@ public partial class HubPage : ContentPage
     {
         InitializeComponent();
         _dataService = dataService;
+        UpdateLanguageLabel();
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
         await _dataService.InitializeAsync();
+        UpdateLanguageLabel(); // Ensure label is correct on reappearing
     }
 
     private async void OnHubTapped(object sender, EventArgs e)
@@ -42,5 +44,21 @@ public partial class HubPage : ContentPage
     private void OnThemeClicked(object sender, EventArgs e)
     {
         Helpers.ThemeHelper.ToggleTheme();
+    }
+    
+    private void OnLanguageClicked(object sender, EventArgs e)
+    {
+        var current = Helpers.LocalizationResourceManager.Instance.CurrentCulture;
+        var newCulture = current.Name.StartsWith("tr") ? new System.Globalization.CultureInfo("en") : new System.Globalization.CultureInfo("tr");
+        Helpers.LocalizationResourceManager.Instance.SetCulture(newCulture);
+        UpdateLanguageLabel();
+    }
+    
+    private void UpdateLanguageLabel()
+    {
+        if (LanguageLabel != null)
+        {
+            LanguageLabel.Text = Helpers.LocalizationResourceManager.Instance.CurrentCulture.TwoLetterISOLanguageName.ToUpper();
+        }
     }
 }

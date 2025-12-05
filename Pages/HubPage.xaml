@@ -6,29 +6,38 @@
 
     <Shell.TitleView>
         <Grid Margin="0,0,10,0">
-            <Label Text="{x:Static helpers:Constants.AppName}" 
+            <Label Text="{helpers:Translate AppName}" 
                    FontSize="20" 
                    FontAttributes="Bold" 
                    VerticalOptions="Center" 
                    HorizontalOptions="Center" 
                    TextColor="{DynamicResource DynamicShellTitleColor}"/>
-            <Label Text="{DynamicResource DynamicThemeIcon}" 
-                   FontSize="22" 
-                   VerticalOptions="Center" 
-                   HorizontalOptions="End"
-                   TextColor="{DynamicResource DynamicShellTitleColor}"
-                   Margin="0,0,10,0">
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnThemeClicked"/>
-                </Label.GestureRecognizers>
-            </Label>
+            
+            <HorizontalStackLayout HorizontalOptions="End" VerticalOptions="Center" Spacing="15">
+                <Label x:Name="LanguageLabel" Text="EN" 
+                       FontSize="16" FontAttributes="Bold"
+                       VerticalOptions="Center"
+                       TextColor="{DynamicResource DynamicShellTitleColor}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnLanguageClicked"/>
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label Text="{DynamicResource DynamicThemeIcon}" 
+                       FontSize="22" 
+                       VerticalOptions="Center" 
+                       TextColor="{DynamicResource DynamicShellTitleColor}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnThemeClicked"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
         </Grid>
     </Shell.TitleView>
     
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="30">
-            <Label Text="Welcome to Data Hub" FontSize="32" HorizontalOptions="Center" FontAttributes="Bold" TextColor="{DynamicResource DynamicPrimaryText}" />
-            <Label Text="Select a module to manage" FontSize="18" HorizontalOptions="Center" TextColor="{DynamicResource DynamicSecondaryText}" />
+            <Label Text="{helpers:Translate WelcomeHub}" FontSize="32" HorizontalOptions="Center" FontAttributes="Bold" TextColor="{DynamicResource DynamicPrimaryText}" />
+            <Label Text="{helpers:Translate SelectModule}" FontSize="18" HorizontalOptions="Center" TextColor="{DynamicResource DynamicSecondaryText}" />
 
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto" ColumnSpacing="20" Margin="0,30,0,0">
                 
@@ -39,8 +48,8 @@
                     </Border.GestureRecognizers>
                     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
                         <Label Text="⚕️" FontSize="60" HorizontalOptions="Center" TextColor="{DynamicResource DynamicPrimaryText}"/>
-                        <Label Text="Health Dictionary" TextColor="{DynamicResource DynamicPrimaryText}" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
-                        <Label Text="Sağlık Sözlüğü" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="14" HorizontalOptions="Center" />
+                        <Label Text="{helpers:Translate HealthDict}" TextColor="{DynamicResource DynamicPrimaryText}" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                        <Label Text="{helpers:Translate HealthDictSub}" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="14" HorizontalOptions="Center" />
                     </VerticalStackLayout>
                 </Border>
 
@@ -51,8 +60,8 @@
                     </Border.GestureRecognizers>
                     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
                         <Label Text="⚔️" FontSize="60" HorizontalOptions="Center" TextColor="{DynamicResource DynamicPrimaryText}"/>
-                        <Label Text="Military Dictionary" TextColor="{DynamicResource DynamicPrimaryText}" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
-                        <Label Text="Askeri Sözlük" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="14" HorizontalOptions="Center" />
+                        <Label Text="{helpers:Translate MilitaryDict}" TextColor="{DynamicResource DynamicPrimaryText}" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
+                        <Label Text="{helpers:Translate MilitaryDictSub}" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="14" HorizontalOptions="Center" />
                     </VerticalStackLayout>
                 </Border>
 

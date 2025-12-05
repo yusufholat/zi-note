@@ -55,6 +55,16 @@
         </None>
 	</ItemGroup>
 
+    <ItemGroup>
+        <EmbeddedResource Update="Resources\Languages\AppResources.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>AppResources.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="Resources\Languages\AppResources.tr.resx">
+            <Generator></Generator>
+        </EmbeddedResource>
+    </ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="ClosedXML" Version="0.105.0" />
 		<PackageReference Include="Google.Cloud.Firestore" Version="4.0.0" />

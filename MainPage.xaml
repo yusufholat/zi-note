@@ -10,28 +10,37 @@
 
     <Shell.TitleView>
         <Grid Margin="0,0,10,0">
-            <Label Text="{Binding Title}" 
+            <Label Text="{helpers:Translate AppName}" 
                    FontSize="20" 
                    FontAttributes="Bold" 
                    VerticalOptions="Center" 
                    HorizontalOptions="Center" 
                    TextColor="{DynamicResource DynamicShellTitleColor}"/>
-            <Label Text="{DynamicResource DynamicThemeIcon}" 
-                   FontSize="22" 
-                   VerticalOptions="Center" 
-                   HorizontalOptions="End"
-                   TextColor="{DynamicResource DynamicShellTitleColor}"
-                   Margin="0,0,10,0">
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnThemeClicked"/>
-                </Label.GestureRecognizers>
-            </Label>
+            
+            <HorizontalStackLayout HorizontalOptions="End" VerticalOptions="Center" Spacing="15">
+                <Label x:Name="LanguageLabel" Text="EN" 
+                       FontSize="16" FontAttributes="Bold"
+                       VerticalOptions="Center"
+                       TextColor="{DynamicResource DynamicShellTitleColor}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnLanguageClicked"/>
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label Text="{DynamicResource DynamicThemeIcon}" 
+                       FontSize="22" 
+                       VerticalOptions="Center" 
+                       TextColor="{DynamicResource DynamicShellTitleColor}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnThemeClicked"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
         </Grid>
     </Shell.TitleView>
 
     <Grid RowDefinitions="Auto,Auto,*" Padding="15" RowSpacing="15" BackgroundColor="{DynamicResource DynamicPageBackground}">
         <!-- Row 0: Export -->
-        <Button Grid.Row="0" Text="Export Options" Clicked="OnExportOptionsClicked" 
+        <Button Grid.Row="0" Text="{helpers:Translate ExportOptions}" Clicked="OnExportOptionsClicked" 
                 BackgroundColor="{DynamicResource DynamicAccent}" 
                 TextColor="{DynamicResource DynamicButtonText}" FontAttributes="Bold" CornerRadius="8" HeightRequest="36" Padding="15,0" 
                 HorizontalOptions="End"/>
@@ -39,7 +48,7 @@
         <!-- Row 1: Search & Add -->
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto" ColumnSpacing="10">
             <Frame Grid.Column="0" Padding="0" CornerRadius="10" HasShadow="False" BorderColor="{DynamicResource DynamicBorder}" BackgroundColor="{DynamicResource DynamicCardBackground}" HeightRequest="45">
-                <SearchBar x:Name="SearchBar" Placeholder="Search terms..." TextChanged="OnSearchBarTextChanged" BackgroundColor="Transparent" VerticalOptions="Center"/>
+                <SearchBar x:Name="SearchBar" Placeholder="{helpers:Translate SearchPlaceholder}" TextChanged="OnSearchBarTextChanged" BackgroundColor="Transparent" VerticalOptions="Center"/>
             </Frame>
             <Button Grid.Column="1" Text="+" Clicked="OnAddClicked" FontSize="24" WidthRequest="45" HeightRequest="45" CornerRadius="22" BackgroundColor="{DynamicResource DynamicSuccessButtonBg}" TextColor="{DynamicResource DynamicButtonText}" Padding="0"/>
         </Grid>
@@ -79,30 +88,30 @@
         <Grid x:Name="ExportOverlay" Grid.Row="0" Grid.RowSpan="3" BackgroundColor="{DynamicResource DynamicOverlayBackground}" IsVisible="False" ZIndex="999">
             <Frame BackgroundColor="{DynamicResource DynamicCardBackground}" CornerRadius="10" HorizontalOptions="Center" VerticalOptions="Center" Padding="25" WidthRequest="320" BorderColor="Transparent">
                 <VerticalStackLayout Spacing="15">
-                    <Label Text="Export Options" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{DynamicResource DynamicPrimaryText}" Margin="0,0,0,10"/>
+                    <Label Text="{helpers:Translate ExportOptions}" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{DynamicResource DynamicPrimaryText}" Margin="0,0,0,10"/>
 
                     <!-- Basic -->
-                    <Label Text="Basic Data" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold"/>
+                    <Label Text="{helpers:Translate BasicData}" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold"/>
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                         <Button Grid.Column="0" Text="CSV" Clicked="OnExportFormatClicked" CommandParameter="Basic CSV" BackgroundColor="{DynamicResource DynamicExportBasicBg}" TextColor="{DynamicResource DynamicExportBasicText}" BorderColor="{DynamicResource DynamicBorder}" BorderWidth="1"/>
                         <Button Grid.Column="1" Text="Excel" Clicked="OnExportFormatClicked" CommandParameter="Basic Excel" BackgroundColor="{DynamicResource DynamicExportBasicBg}" TextColor="{DynamicResource DynamicExportBasicText}" BorderColor="{DynamicResource DynamicBorder}" BorderWidth="1"/>
                     </Grid>
 
                     <!-- Matecat -->
-                    <Label Text="Matecat" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Label Text="{helpers:Translate Matecat}" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold" Margin="0,10,0,0"/>
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                         <Button Grid.Column="0" Text="CSV" Clicked="OnExportFormatClicked" CommandParameter="Matecat CSV" BackgroundColor="{DynamicResource DynamicExportMatecatBg}" TextColor="{DynamicResource DynamicExportMatecatText}" BorderColor="{DynamicResource DynamicExportMatecatText}" BorderWidth="1"/>
                         <Button Grid.Column="1" Text="Excel" Clicked="OnExportFormatClicked" CommandParameter="Matecat Excel" BackgroundColor="{DynamicResource DynamicExportMatecatBg}" TextColor="{DynamicResource DynamicExportMatecatText}" BorderColor="{DynamicResource DynamicExportMatecatText}" BorderWidth="1"/>
                     </Grid>
 
                     <!-- Smartcat -->
-                    <Label Text="Smartcat" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Label Text="{helpers:Translate Smartcat}" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold" Margin="0,10,0,0"/>
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                         <Button Grid.Column="0" Text="CSV" Clicked="OnExportFormatClicked" CommandParameter="Smartcat CSV" BackgroundColor="{DynamicResource DynamicExportSmartcatBg}" TextColor="{DynamicResource DynamicExportSmartcatText}" BorderColor="{DynamicResource DynamicExportSmartcatText}" BorderWidth="1"/>
                         <Button Grid.Column="1" Text="Excel" Clicked="OnExportFormatClicked" CommandParameter="Smartcat Excel" BackgroundColor="{DynamicResource DynamicExportSmartcatBg}" TextColor="{DynamicResource DynamicExportSmartcatText}" BorderColor="{DynamicResource DynamicExportSmartcatText}" BorderWidth="1"/>
                     </Grid>
 
-                    <Button Text="Close" Clicked="OnExportOverlayClose" BackgroundColor="{DynamicResource DynamicCloseButtonBg}" TextColor="{DynamicResource DynamicButtonText}" Margin="0,20,0,0"/>
+                    <Button Text="{helpers:Translate Close}" Clicked="OnExportOverlayClose" BackgroundColor="{DynamicResource DynamicCloseButtonBg}" TextColor="{DynamicResource DynamicButtonText}" Margin="0,20,0,0"/>
                 </VerticalStackLayout>
             </Frame>
         </Grid>

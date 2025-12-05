@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <data name="AppName" xml:space="preserve">
+    <value>Zinote</value>
+  </data>
+  <data name="ExportOptions" xml:space="preserve">
+    <value>Export Options</value>
+  </data>
+  <data name="SearchPlaceholder" xml:space="preserve">
+    <value>Search terms...</value>
+  </data>
+  <data name="GeneralInfo" xml:space="preserve">
+    <value>General Information</value>
+  </data>
+  <data name="SourceTerm" xml:space="preserve">
+    <value>Source Term</value>
+  </data>
+  <data name="TargetTerm" xml:space="preserve">
+    <value>Target Term</value>
+  </data>
+  <data name="Definition" xml:space="preserve">
+    <value>Definition (Optional)</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notes / Comments (Optional)</value>
+  </data>
+  <data name="Example" xml:space="preserve">
+    <value>Example of Use (Optional)</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings &amp; Metadata</value>
+  </data>
+  <data name="Forbidden" xml:space="preserve">
+    <value>Do not translate / Forbidden</value>
+  </data>
+  <data name="Domain" xml:space="preserve">
+    <value>Domain (Optional)</value>
+  </data>
+  <data name="SubDomain" xml:space="preserve">
+    <value>SubDomain (Optional)</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="BasicData" xml:space="preserve">
+    <value>Basic Data</value>
+  </data>
+  <data name="Matecat" xml:space="preserve">
+    <value>Matecat</value>
+  </data>
+  <data name="Smartcat" xml:space="preserve">
+    <value>Smartcat</value>
+  </data>
+  <data name="WelcomeHub" xml:space="preserve">
+    <value>Welcome to Data Hub</value>
+  </data>
+  <data name="SelectModule" xml:space="preserve">
+    <value>Select a module to manage</value>
+  </data>
+  <data name="HealthDict" xml:space="preserve">
+    <value>Health Dictionary</value>
+  </data>
+  <data name="HealthDictSub" xml:space="preserve">
+    <value>Medical Terms</value>
+  </data>
+  <data name="MilitaryDict" xml:space="preserve">
+    <value>Military Dictionary</value>
+  </data>
+  <data name="MilitaryDictSub" xml:space="preserve">
+    <value>Army &amp; Defense</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="EnterSource" xml:space="preserve">
+    <value>Enter source term</value>
+  </data>
+  <data name="EnterTarget" xml:space="preserve">
+    <value>Enter target term</value>
+  </data>
+  <data name="EnterDef" xml:space="preserve">
+    <value>Enter definition</value>
+  </data>
+  <data name="EnterNotes" xml:space="preserve">
+    <value>Enter notes</value>
+  </data>
+  <data name="EnterExample" xml:space="preserve">
+    <value>Enter example</value>
+  </data>
+</root>

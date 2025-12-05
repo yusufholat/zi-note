@@ -51,7 +51,7 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
             Dispatcher.Dispatch(() => 
             {
                if (ForbiddenSwitch != null) ForbiddenSwitch.IsToggled = false;
-               if (ForbiddenStateLabel != null) ForbiddenStateLabel.Text = "Hayır";
+               if (ForbiddenStateLabel != null) ForbiddenStateLabel.Text = LocalizationResourceManager.Instance["No"];
             });
         }
     }
@@ -78,7 +78,7 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
                     ExampleEntry.Text = _item.ExampleOfUse;
                     ForbiddenSwitch.IsToggled = _item.Forbidden;
                     // Label updates automatically via event, but to be sure:
-                    ForbiddenStateLabel.Text = _item.Forbidden ? "Evet" : "Hayır";
+                    ForbiddenStateLabel.Text = _item.Forbidden ? LocalizationResourceManager.Instance["Yes"] : LocalizationResourceManager.Instance["No"];
                 });
             }
         }
@@ -140,12 +140,34 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
     {
         Helpers.ThemeHelper.ToggleTheme();
     }
+    
+    private void OnLanguageClicked(object sender, EventArgs e)
+    {
+        var current = LocalizationResourceManager.Instance.CurrentCulture;
+        var newCulture = current.Name.StartsWith("tr") ? new System.Globalization.CultureInfo("en") : new System.Globalization.CultureInfo("tr");
+        LocalizationResourceManager.Instance.SetCulture(newCulture);
+        UpdateLanguageLabel();
+    }
+    
+    private void UpdateLanguageLabel()
+    {
+        if (LanguageLabel != null)
+        {
+            LanguageLabel.Text = LocalizationResourceManager.Instance.CurrentCulture.TwoLetterISOLanguageName.ToUpper();
+        }
+        
+        // Also update Forbidden label if state exists
+         if (ForbiddenStateLabel != null && ForbiddenSwitch != null)
+        {
+             ForbiddenStateLabel.Text = ForbiddenSwitch.IsToggled ? LocalizationResourceManager.Instance["Yes"] : LocalizationResourceManager.Instance["No"];
+        }
+    }
 
     private void OnForbiddenToggled(object sender, ToggledEventArgs e)
     {
         if (ForbiddenStateLabel != null)
         {
-            ForbiddenStateLabel.Text = e.Value ? "Evet" : "Hayır";
+            ForbiddenStateLabel.Text = e.Value ? LocalizationResourceManager.Instance["Yes"] : LocalizationResourceManager.Instance["No"];
         }
     }
 

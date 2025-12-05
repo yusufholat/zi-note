@@ -23,8 +23,8 @@ public partial class MainPage : ContentPage
             _collectionName = value;
             Title = value switch
             {
-                "health_dictionary" => "Sağlık Sözlüğü",
-                "military_dictionary" => "Askeri Sözlük",
+                "health_dictionary" => LocalizationResourceManager.Instance["HealthDict"],
+                "military_dictionary" => LocalizationResourceManager.Instance["MilitaryDict"],
                 _ => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(value.Replace("_", " "))
             };
         }
@@ -35,6 +35,7 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         _dataService = dataService;
         BindingContext = this;
+        UpdateLanguageLabel();
     }
 
     protected override async void OnAppearing()
@@ -81,7 +82,9 @@ public partial class MainPage : ContentPage
         {
             await Shell.Current.GoToAsync($"{nameof(Pages.ItemDetailPage)}?{Constants.NavItemId}={item.Id}&{Constants.NavCollectionName}={_collectionName}");
             // Deselect item
+            ItemsCollectionView.ItemsSource = null; // Bug fix: Clear selection properly or just rely on binding
             ItemsCollectionView.SelectedItem = null;
+            await LoadDataAsync(); // Reload to refresh selection state if needed, or just let it be
         }
     }
 
@@ -89,7 +92,12 @@ public partial class MainPage : ContentPage
     {
         if (sender is Button button && button.CommandParameter is string id)
         {
-            bool answer = await DisplayAlert("Confirm", "Are you sure you want to delete this item?", "Yes", "No");
+            bool answer = await DisplayAlert(
+                LocalizationResourceManager.Instance["AppName"], 
+                "Are you sure you want to delete this item?", 
+                LocalizationResourceManager.Instance["Yes"], 
+                LocalizationResourceManager.Instance["No"]);
+                
             if (answer)
             {
                 await _dataService.DeleteAsync(_collectionName, id);
@@ -101,6 +109,30 @@ public partial class MainPage : ContentPage
     private void OnThemeClicked(object sender, EventArgs e)
     {
         Helpers.ThemeHelper.ToggleTheme();
+    }
+    
+    private void OnLanguageClicked(object sender, EventArgs e)
+    {
+        var current = LocalizationResourceManager.Instance.CurrentCulture;
+        var newCulture = current.Name.StartsWith("tr") ? new System.Globalization.CultureInfo("en") : new System.Globalization.CultureInfo("tr");
+        LocalizationResourceManager.Instance.SetCulture(newCulture);
+        UpdateLanguageLabel();
+        
+        // Refresh Title
+         Title = _collectionName switch
+            {
+                "health_dictionary" => LocalizationResourceManager.Instance["HealthDict"],
+                "military_dictionary" => LocalizationResourceManager.Instance["MilitaryDict"],
+                _ => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_collectionName.Replace("_", " "))
+            };
+    }
+    
+    private void UpdateLanguageLabel()
+    {
+         if (LanguageLabel != null)
+        {
+            LanguageLabel.Text = LocalizationResourceManager.Instance.CurrentCulture.TwoLetterISOLanguageName.ToUpper();
+        }
     }
 
     private void OnExportOptionsClicked(object sender, EventArgs e)
@@ -151,7 +183,7 @@ public partial class MainPage : ContentPage
 
                 if (!string.IsNullOrEmpty(filePath))
                 {
-                    await DisplayAlert("Success", $"Data exported to:\n{filePath}", "OK");
+                    await DisplayAlert(LocalizationResourceManager.Instance["AppName"], $"Data exported to:\n{filePath}", "OK");
                 }
             }
             catch (Exception ex)
