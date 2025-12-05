@@ -6,6 +6,20 @@ public partial class App : Application
 	{
 		InitializeComponent();
 
+        Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("Borderless", (handler, view) =>
+        {
+#if WINDOWS
+            handler.PlatformView.BorderThickness = new Microsoft.UI.Xaml.Thickness(0);
+#endif
+        });
+
+        Microsoft.Maui.Handlers.EditorHandler.Mapper.AppendToMapping("Borderless", (handler, view) =>
+        {
+#if WINDOWS
+            handler.PlatformView.BorderThickness = new Microsoft.UI.Xaml.Thickness(0);
+#endif
+        });
+
 		MainPage = new AppShell();
 	}
 

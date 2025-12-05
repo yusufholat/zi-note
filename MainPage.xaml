@@ -1,31 +1,71 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:Zinote.Helpers"
              x:Class="Zinote.MainPage"
              Title="Zinote">
 
-    <Grid RowDefinitions="Auto,Auto,*" Padding="20" RowSpacing="10">
-        <!-- Row 0: Export Buttons (Right Aligned) -->
-        <HorizontalStackLayout Grid.Row="0" Spacing="10" HorizontalOptions="End">
-            <Button Text="Export Options" Clicked="OnExportOptionsClicked" BackgroundColor="#007ACC" TextColor="White" FontAttributes="Bold" />
-        </HorizontalStackLayout>
+    <Shell.TitleView>
+        <Grid Margin="0,0,10,0">
+            <Label Text="{Binding Title}" 
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   VerticalOptions="Center" 
+                   HorizontalOptions="Center" 
+                   TextColor="White"/>
+            <Label Text="{DynamicResource DynamicThemeIcon}" 
+                   FontSize="22" 
+                   VerticalOptions="Center" 
+                   HorizontalOptions="End"
+                   TextColor="White"
+                   Margin="0,0,10,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnThemeClicked"/>
+                </Label.GestureRecognizers>
+            </Label>
+        </Grid>
+    </Shell.TitleView>
 
-        <!-- Row 1: Search & Add (Full Width) -->
+    <Grid RowDefinitions="Auto,Auto,*" Padding="15" RowSpacing="15" BackgroundColor="{DynamicResource DynamicPageBackground}">
+        <!-- Row 0: Export -->
+        <Button Grid.Row="0" Text="Export Options" Clicked="OnExportOptionsClicked" 
+                BackgroundColor="{DynamicResource DynamicAccent}" 
+                TextColor="White" FontAttributes="Bold" CornerRadius="8" HeightRequest="36" Padding="15,0" 
+                HorizontalOptions="End"/>
+
+        <!-- Row 1: Search & Add -->
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto" ColumnSpacing="10">
-            <SearchBar x:Name="SearchBar" Grid.Column="0" Placeholder="Search..." TextChanged="OnSearchBarTextChanged" HorizontalOptions="FillAndExpand"/>
-            <Button Grid.Column="1" Text="Add New" Clicked="OnAddClicked" />
+            <Frame Grid.Column="0" Padding="0" CornerRadius="10" HasShadow="False" BorderColor="{DynamicResource DynamicBorder}" BackgroundColor="{DynamicResource DynamicCardBackground}" HeightRequest="45">
+                <SearchBar x:Name="SearchBar" Placeholder="Search terms..." TextChanged="OnSearchBarTextChanged" BackgroundColor="Transparent" VerticalOptions="Center"/>
+            </Frame>
+            <Button Grid.Column="1" Text="+" Clicked="OnAddClicked" FontSize="24" WidthRequest="45" HeightRequest="45" CornerRadius="22" BackgroundColor="#4CAF50" TextColor="White" Padding="0"/>
         </Grid>
 
+        <!-- Row 2: List -->
         <CollectionView x:Name="ItemsCollectionView" Grid.Row="2" SelectionMode="Single" SelectionChanged="OnSelectionChanged">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
+            </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Margin="0,5" Padding="10" BorderColor="Gray" CornerRadius="5">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <VerticalStackLayout Grid.Column="0">
-                                <Label Text="{Binding SourceTerm}" FontAttributes="Bold" FontSize="Medium" />
-                                <Label Text="{Binding TargetTerm}" TextColor="Gray" LineBreakMode="TailTruncation" />
+                    <Frame Margin="0" Padding="0" CornerRadius="12" HasShadow="True" BorderColor="Transparent" BackgroundColor="{DynamicResource DynamicCardBackground}">
+                        <Grid ColumnDefinitions="5, *, Auto">
+                            <!-- Left Accent Bar -->
+                            <BoxView Grid.Column="0" Color="{DynamicResource DynamicAccent}" VerticalOptions="Fill"/>
+                            
+                            <!-- Content -->
+                            <VerticalStackLayout Grid.Column="1" Padding="15,10" Spacing="4">
+                                <Label Text="{Binding SourceTerm}" FontAttributes="Bold" FontSize="18" TextColor="{DynamicResource DynamicPrimaryText}" />
+                                <Label Text="{Binding TargetTerm}" FontSize="16" TextColor="{DynamicResource DynamicSecondaryText}" />
+                                <Label Text="{Binding Definition}" TextColor="{DynamicResource DynamicSecondaryText}" Opacity="0.7" FontSize="12" LineBreakMode="TailTruncation" MaxLines="2" />
                             </VerticalStackLayout>
-                            <Button Grid.Column="1" Text="Delete" Clicked="OnDeleteClicked" CommandParameter="{Binding Id}" BackgroundColor="Red" TextColor="White" HeightRequest="40" WidthRequest="80" VerticalOptions="Center" />
+                            
+                            <!-- Action -->
+                             <Button Grid.Column="2" Text="✕" Clicked="OnDeleteClicked" CommandParameter="{Binding Id}" 
+                                     BackgroundColor="{DynamicResource DynamicDangerBackground}" 
+                                     TextColor="#EF5350" FontSize="16" FontAttributes="Bold"
+                                     WidthRequest="36" HeightRequest="36" CornerRadius="18" Padding="0"
+                                     VerticalOptions="Center" Margin="0,0,10,0"/>
                         </Grid>
                     </Frame>
                 </DataTemplate>

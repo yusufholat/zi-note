@@ -136,6 +136,11 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
         }
     }
 
+    private void OnThemeClicked(object sender, EventArgs e)
+    {
+        Helpers.ThemeHelper.ToggleTheme();
+    }
+
     private void OnForbiddenToggled(object sender, ToggledEventArgs e)
     {
         if (ForbiddenStateLabel != null)

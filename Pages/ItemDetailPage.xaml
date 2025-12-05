@@ -3,40 +3,112 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Zinote.Pages.ItemDetailPage"
              Title="Item Details">
-    <ScrollView>
-        <VerticalStackLayout Spacing="20" Padding="30">
-            <Label Text="Source Term (EN)" FontSize="Medium" FontAttributes="Bold" />
-            <Entry x:Name="SourceTermEntry" Placeholder="Enter source term (English)" />
+    <Shell.TitleView>
+        <Grid Margin="0,0,10,0">
+            <Label Text="Item Details" 
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   VerticalOptions="Center" 
+                   HorizontalOptions="Center" 
+                   TextColor="White"/>
+            <Label Text="{DynamicResource DynamicThemeIcon}" 
+                   FontSize="22" 
+                   VerticalOptions="Center" 
+                   HorizontalOptions="End"
+                   TextColor="White"
+                   Margin="0,0,10,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnThemeClicked"/>
+                </Label.GestureRecognizers>
+            </Label>
+        </Grid>
+    </Shell.TitleView>
 
-            <Label Text="Target Term (TR)" FontSize="Medium" FontAttributes="Bold" />
-            <Entry x:Name="TargetTermEntry" Placeholder="Enter target term (Turkish)" />
+    <ScrollView BackgroundColor="{DynamicResource DynamicPageBackground}">
+        <VerticalStackLayout Spacing="15" Padding="20">
+            
+            <!-- Basic Info Card -->
+            <Frame CornerRadius="10" HasShadow="True" BackgroundColor="{DynamicResource DynamicCardBackground}" Padding="15" BorderColor="Transparent">
+                <VerticalStackLayout Spacing="15">
+                     <Label Text="General Information" FontSize="16" FontAttributes="Bold" TextColor="{DynamicResource DynamicAccent}" Margin="0,0,0,5"/>
+                     
+                     <VerticalStackLayout Spacing="5">
+                        <Label Text="Source Term (EN)" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="12" FontAttributes="Bold"/>
+                        <Frame Padding="0" CornerRadius="5" HasShadow="False" BorderColor="{DynamicResource DynamicBorder}" BackgroundColor="{DynamicResource DynamicInputBackground}">
+                             <Entry x:Name="SourceTermEntry" Placeholder="Enter source term" BackgroundColor="Transparent" TextColor="{DynamicResource DynamicPrimaryText}" PlaceholderColor="{DynamicResource DynamicSecondaryText}"/>
+                        </Frame>
+                     </VerticalStackLayout>
 
-            <Label Text="Definition (Optional)" FontSize="Medium" FontAttributes="Bold" />
-            <Editor x:Name="DefinitionEntry" Placeholder="Enter definition" AutoSize="TextChanges" MinimumHeightRequest="100" />
+                     <VerticalStackLayout Spacing="5">
+                        <Label Text="Target Term (TR)" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="12" FontAttributes="Bold"/>
+                        <Frame Padding="0" CornerRadius="5" HasShadow="False" BorderColor="{DynamicResource DynamicBorder}" BackgroundColor="{DynamicResource DynamicInputBackground}">
+                             <Entry x:Name="TargetTermEntry" Placeholder="Enter target term" BackgroundColor="Transparent" TextColor="{DynamicResource DynamicPrimaryText}" PlaceholderColor="{DynamicResource DynamicSecondaryText}"/>
+                        </Frame>
+                     </VerticalStackLayout>
 
-            <!-- Common Optional Fields -->
-            <Label Text="Notes / Comments (Optional)" FontSize="Medium" FontAttributes="Bold" />
-            <Editor x:Name="NotesEntry" Placeholder="Enter notes or comments" AutoSize="TextChanges" />
+                     <VerticalStackLayout Spacing="5">
+                        <Label Text="Definition (Optional)" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="12" FontAttributes="Bold"/>
+                        <Frame Padding="5" CornerRadius="5" HasShadow="False" BorderColor="{DynamicResource DynamicBorder}" BackgroundColor="{DynamicResource DynamicInputBackground}">
+                             <Editor x:Name="DefinitionEntry" Placeholder="Enter definition" AutoSize="TextChanges" MinimumHeightRequest="80" BackgroundColor="Transparent" TextColor="{DynamicResource DynamicPrimaryText}" PlaceholderColor="{DynamicResource DynamicSecondaryText}"/>
+                        </Frame>
+                     </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
 
-            <Label Text="Example of Use (Optional)" FontSize="Medium" FontAttributes="Bold" />
-            <Editor x:Name="ExampleEntry" Placeholder="Enter example" AutoSize="TextChanges" />
+            <!-- Details Card -->
+            <Frame CornerRadius="10" HasShadow="True" BackgroundColor="{DynamicResource DynamicCardBackground}" Padding="15" BorderColor="Transparent">
+                <VerticalStackLayout Spacing="15">
+                     <Label Text="Details" FontSize="16" FontAttributes="Bold" TextColor="{DynamicResource DynamicAccent}" Margin="0,0,0,5"/>
 
-            <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="10">
-                <Label Grid.Column="0" Text="Do not translate (Optional)" FontSize="Medium" FontAttributes="Bold" VerticalOptions="Center" LineBreakMode="WordWrap" />
-                <Label Grid.Column="1" x:Name="ForbiddenStateLabel" Text="Hayır" VerticalOptions="Center" TextColor="Gray"/>
-                <Switch Grid.Column="2" x:Name="ForbiddenSwitch" VerticalOptions="Center" Toggled="OnForbiddenToggled" />
-            </Grid>
+                     <VerticalStackLayout Spacing="5">
+                        <Label Text="Notes / Comments (Optional)" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="12" FontAttributes="Bold"/>
+                        <Frame Padding="5" CornerRadius="5" HasShadow="False" BorderColor="{DynamicResource DynamicBorder}" BackgroundColor="{DynamicResource DynamicInputBackground}">
+                             <Editor x:Name="NotesEntry" Placeholder="Enter notes" AutoSize="TextChanges" BackgroundColor="Transparent" TextColor="{DynamicResource DynamicPrimaryText}" PlaceholderColor="{DynamicResource DynamicSecondaryText}"/>
+                        </Frame>
+                     </VerticalStackLayout>
 
-            <!-- Specific Optional Fields -->
-            <Label Text="Domain (Optional)" FontSize="Medium" FontAttributes="Bold" />
-            <Entry x:Name="DomainEntry" Placeholder="Enter domain" />
+                     <VerticalStackLayout Spacing="5">
+                        <Label Text="Example of Use (Optional)" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="12" FontAttributes="Bold"/>
+                        <Frame Padding="5" CornerRadius="5" HasShadow="False" BorderColor="{DynamicResource DynamicBorder}" BackgroundColor="{DynamicResource DynamicInputBackground}">
+                             <Editor x:Name="ExampleEntry" Placeholder="Enter example" AutoSize="TextChanges" BackgroundColor="Transparent" TextColor="{DynamicResource DynamicPrimaryText}" PlaceholderColor="{DynamicResource DynamicSecondaryText}"/>
+                        </Frame>
+                     </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
 
-            <Label Text="SubDomain (Optional)" FontSize="Medium" FontAttributes="Bold" />
-            <Entry x:Name="SubDomainEntry" Placeholder="Enter subdomain" />
+            <!-- Metadata/Settings Card -->
+            <Frame CornerRadius="10" HasShadow="True" BackgroundColor="{DynamicResource DynamicCardBackground}" Padding="15" BorderColor="Transparent">
+                <VerticalStackLayout Spacing="15">
+                     <Label Text="Settings &amp; Metadata" FontSize="16" FontAttributes="Bold" TextColor="{DynamicResource DynamicAccent}" Margin="0,0,0,5"/>
 
-            <HorizontalStackLayout Spacing="20" HorizontalOptions="Center" Margin="0,20,0,0">
-                <Button Text="Save" Clicked="OnSaveClicked" WidthRequest="100" />
-                <Button Text="Cancel" Clicked="OnCancelClicked" WidthRequest="100" BackgroundColor="Gray" />
+                     <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="10" BackgroundColor="{DynamicResource DynamicInputBackground}" Padding="10">
+                        <Label Grid.Column="0" Text="Do not translate (Forbidden)" VerticalOptions="Center" FontAttributes="Bold" TextColor="{DynamicResource DynamicPrimaryText}"/>
+                        <Label Grid.Column="1" x:Name="ForbiddenStateLabel" Text="Hayır" VerticalOptions="Center" TextColor="{DynamicResource DynamicSecondaryText}"/>
+                        <Switch Grid.Column="2" x:Name="ForbiddenSwitch" VerticalOptions="Center" Toggled="OnForbiddenToggled" />
+                     </Grid>
+
+                     <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                         <VerticalStackLayout Grid.Column="0" Spacing="5">
+                            <Label Text="Domain (Optional)" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="12" FontAttributes="Bold"/>
+                            <Frame Padding="0" CornerRadius="5" HasShadow="False" BorderColor="{DynamicResource DynamicBorder}" BackgroundColor="{DynamicResource DynamicInputBackground}">
+                                 <Entry x:Name="DomainEntry" Placeholder="Domain" BackgroundColor="Transparent" TextColor="{DynamicResource DynamicPrimaryText}" PlaceholderColor="{DynamicResource DynamicSecondaryText}"/>
+                            </Frame>
+                         </VerticalStackLayout>
+
+                         <VerticalStackLayout Grid.Column="1" Spacing="5">
+                            <Label Text="SubDomain (Optional)" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="12" FontAttributes="Bold"/>
+                            <Frame Padding="0" CornerRadius="5" HasShadow="False" BorderColor="{DynamicResource DynamicBorder}" BackgroundColor="{DynamicResource DynamicInputBackground}">
+                                 <Entry x:Name="SubDomainEntry" Placeholder="SubDomain" BackgroundColor="Transparent" TextColor="{DynamicResource DynamicPrimaryText}" PlaceholderColor="{DynamicResource DynamicSecondaryText}"/>
+                            </Frame>
+                         </VerticalStackLayout>
+                     </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Actions -->
+            <HorizontalStackLayout Spacing="20" HorizontalOptions="Center" Margin="0,10,0,20">
+                <Button Text="Save" Clicked="OnSaveClicked" WidthRequest="120" HeightRequest="45" CornerRadius="22" BackgroundColor="{DynamicResource DynamicAccent}" TextColor="White" FontAttributes="Bold"/>
+                <Button Text="Cancel" Clicked="OnCancelClicked" WidthRequest="120" HeightRequest="45" CornerRadius="22" BackgroundColor="{DynamicResource DynamicBorder}" TextColor="{DynamicResource DynamicPrimaryText}" FontAttributes="Bold"/>
             </HorizontalStackLayout>
         </VerticalStackLayout>
     </ScrollView>

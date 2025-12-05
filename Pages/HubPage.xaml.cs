@@ -39,4 +39,8 @@ public partial class HubPage : ContentPage
             }
         }
     }
+    private void OnThemeClicked(object sender, EventArgs e)
+    {
+        Helpers.ThemeHelper.ToggleTheme();
+    }
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    
+    <Color x:Key="DynamicPageBackground">#F5F5F5</Color>
+    <Color x:Key="DynamicCardBackground">White</Color>
+    <Color x:Key="DynamicInputBackground">#FAFAFA</Color>
+    <Color x:Key="DynamicPrimaryText">#333333</Color>
+    <Color x:Key="DynamicSecondaryText">#666666</Color>
+    <Color x:Key="DynamicAccent">#007ACC</Color>
+    <Color x:Key="DynamicBorder">#E0E0E0</Color>
+    <Color x:Key="DynamicDangerBackground">#FFEBEE</Color>
+    
+    <!-- Theme Icon -->
+    <x:String x:Key="DynamicThemeIcon">🌙</x:String>
+
+</ResourceDictionary>

@@ -41,4 +41,25 @@
     <Color x:Key="Blue200Accent">#72ACF1</Color>
     <Color x:Key="Blue300Accent">#A7CBF6</Color>
 
+    <Color x:Key="SystemPageBackgroundLight">#F5F5F5</Color>
+    <Color x:Key="SystemPageBackgroundDark">#121212</Color>
+
+    <Color x:Key="CardBackgroundLight">White</Color>
+    <Color x:Key="CardBackgroundDark">#1E1E1E</Color>
+
+    <Color x:Key="PrimaryTextLight">#333333</Color>
+    <Color x:Key="PrimaryTextDark">#FFFFFF</Color>
+
+    <Color x:Key="SecondaryTextLight">#666666</Color>
+    <Color x:Key="SecondaryTextDark">#B0B0B0</Color>
+
+    <Color x:Key="AccentLight">#007ACC</Color>
+    <Color x:Key="AccentDark">#3399FF</Color>
+
+    <Color x:Key="InputBackgroundLight">#FAFAFA</Color>
+    <Color x:Key="InputBackgroundDark">#2D2D2D</Color>
+    
+    <Color x:Key="BorderLight">#E0E0E0</Color>
+    <Color x:Key="BorderDark">#404040</Color>
+
 </ResourceDictionary>

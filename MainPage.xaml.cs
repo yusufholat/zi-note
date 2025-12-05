@@ -21,9 +21,12 @@ public partial class MainPage : ContentPage
         set
         {
             _collectionName = value;
-            Title = value.ToLower();
-            // Reload data when collection changes
-            _ = LoadDataAsync();
+            Title = value switch
+            {
+                "health_dictionary" => "Sağlık Sözlüğü",
+                "military_dictionary" => "Askeri Sözlük",
+                _ => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(value.Replace("_", " "))
+            };
         }
     }
 
@@ -31,6 +34,7 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
         _dataService = dataService;
+        BindingContext = this;
     }
 
     protected override async void OnAppearing()
@@ -92,6 +96,11 @@ public partial class MainPage : ContentPage
                 await LoadDataAsync();
             }
         }
+    }
+
+    private void OnThemeClicked(object sender, EventArgs e)
+    {
+        Helpers.ThemeHelper.ToggleTheme();
     }
 
     private void OnExportOptionsClicked(object sender, EventArgs e)
