@@ -14,23 +14,25 @@
             <Label Text="Definition (Optional)" FontSize="Medium" FontAttributes="Bold" />
             <Editor x:Name="DefinitionEntry" Placeholder="Enter definition" AutoSize="TextChanges" MinimumHeightRequest="100" />
 
-            <!-- Optional Matecat Fields -->
+            <!-- Common Optional Fields -->
+            <Label Text="Notes / Comments (Optional)" FontSize="Medium" FontAttributes="Bold" />
+            <Editor x:Name="NotesEntry" Placeholder="Enter notes or comments" AutoSize="TextChanges" />
+
+            <Label Text="Example of Use (Optional)" FontSize="Medium" FontAttributes="Bold" />
+            <Editor x:Name="ExampleEntry" Placeholder="Enter example" AutoSize="TextChanges" />
+
+            <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="10">
+                <Label Grid.Column="0" Text="Do not translate (Optional)" FontSize="Medium" FontAttributes="Bold" VerticalOptions="Center" LineBreakMode="WordWrap" />
+                <Label Grid.Column="1" x:Name="ForbiddenStateLabel" Text="Hayır" VerticalOptions="Center" TextColor="Gray"/>
+                <Switch Grid.Column="2" x:Name="ForbiddenSwitch" VerticalOptions="Center" Toggled="OnForbiddenToggled" />
+            </Grid>
+
+            <!-- Specific Optional Fields -->
             <Label Text="Domain (Optional)" FontSize="Medium" FontAttributes="Bold" />
             <Entry x:Name="DomainEntry" Placeholder="Enter domain" />
 
             <Label Text="SubDomain (Optional)" FontSize="Medium" FontAttributes="Bold" />
             <Entry x:Name="SubDomainEntry" Placeholder="Enter subdomain" />
-
-            <Label Text="Notes (Optional)" FontSize="Medium" FontAttributes="Bold" />
-            <Editor x:Name="NotesEntry" Placeholder="Enter notes" AutoSize="TextChanges" />
-
-            <Label Text="Example of Use (Optional)" FontSize="Medium" FontAttributes="Bold" />
-            <Editor x:Name="ExampleEntry" Placeholder="Enter example" AutoSize="TextChanges" />
-
-            <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
-                <Label Text="Forbidden (Optional)" FontSize="Medium" FontAttributes="Bold" VerticalOptions="Center" />
-                <Switch x:Name="ForbiddenSwitch" VerticalOptions="Center" />
-            </HorizontalStackLayout>
 
             <HorizontalStackLayout Spacing="20" HorizontalOptions="Center" Margin="0,20,0,0">
                 <Button Text="Save" Clicked="OnSaveClicked" WidthRequest="100" />

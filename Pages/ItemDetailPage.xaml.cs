@@ -44,6 +44,16 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
             _itemId = Uri.UnescapeDataString(itemId.ToString());
             LoadItem(_itemId);
         }
+        else
+        {
+            // New item, default to "Hayır" (No)
+            // Setting IsToggled triggers the event which updates the label
+            Dispatcher.Dispatch(() => 
+            {
+               if (ForbiddenSwitch != null) ForbiddenSwitch.IsToggled = false;
+               if (ForbiddenStateLabel != null) ForbiddenStateLabel.Text = "Hayır";
+            });
+        }
     }
 
     private async void LoadItem(string id)
@@ -67,6 +77,8 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
                     NotesEntry.Text = _item.Notes;
                     ExampleEntry.Text = _item.ExampleOfUse;
                     ForbiddenSwitch.IsToggled = _item.Forbidden;
+                    // Label updates automatically via event, but to be sure:
+                    ForbiddenStateLabel.Text = _item.Forbidden ? "Evet" : "Hayır";
                 });
             }
         }
@@ -121,6 +133,14 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"Failed to save item: {ex.Message}", "OK");
+        }
+    }
+
+    private void OnForbiddenToggled(object sender, ToggledEventArgs e)
+    {
+        if (ForbiddenStateLabel != null)
+        {
+            ForbiddenStateLabel.Text = e.Value ? "Evet" : "Hayır";
         }
     }
 
