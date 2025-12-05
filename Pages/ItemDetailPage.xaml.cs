@@ -1,17 +1,18 @@
 
 using Zinote.Models;
 using Zinote.Services;
+using Zinote.Helpers;
 
 namespace Zinote.Pages;
 
-[QueryProperty(nameof(ItemId), "ItemId")]
-[QueryProperty(nameof(CollectionName), "CollectionName")]
+[QueryProperty(nameof(ItemId), Constants.NavItemId)]
+[QueryProperty(nameof(CollectionName), Constants.NavCollectionName)]
 public partial class ItemDetailPage : ContentPage, IQueryAttributable
 {
     private readonly DataService _dataService;
     private DictionaryItem _item;
     private string _itemId;
-    private string _collectionName = "dictionary_items";
+    private string _collectionName = string.Empty;
 
     public string CollectionName
     {
@@ -33,12 +34,12 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        if (query.TryGetValue("CollectionName", out var collectionName))
+        if (query.TryGetValue(Constants.NavCollectionName, out var collectionName))
         {
             _collectionName = Uri.UnescapeDataString(collectionName.ToString());
         }
 
-        if (query.TryGetValue("ItemId", out var itemId))
+        if (query.TryGetValue(Constants.NavItemId, out var itemId))
         {
             _itemId = Uri.UnescapeDataString(itemId.ToString());
             LoadItem(_itemId);

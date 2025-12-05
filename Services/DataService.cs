@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 using Zinote.Models;
 using Google.Cloud.Firestore;
 using ClosedXML.Excel;
+using Zinote.Helpers;
+using System.Text.Json;
 
 namespace Zinote.Services
 {
     public class DataService
     {
         private FirestoreDb _firestoreDb;
-        private const string ProjectId = "zinote-83c37";
 
         public DataService()
         {
@@ -23,14 +24,15 @@ namespace Zinote.Services
             try
             {
                 // Path to the credentials file
-                string credentialsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "firebase-credentials.json");
+                string credentialsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Constants.CredentialsFileName);
                 
                 if (!File.Exists(credentialsPath))
                 {
                     var current = AppDomain.CurrentDomain.BaseDirectory;
                     for (int i = 0; i < 5; i++)
                     {
-                        var tryPath = Path.Combine(current, "firebase-credentials.json");
+
+                        var tryPath = Path.Combine(current, Constants.CredentialsFileName);
                         if (File.Exists(tryPath))
                         {
                             credentialsPath = tryPath;
@@ -45,7 +47,21 @@ namespace Zinote.Services
                 if (File.Exists(credentialsPath))
                 {
                     Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credentialsPath);
-                    _firestoreDb = await FirestoreDb.CreateAsync(ProjectId);
+                    
+                    // Read project_id from json
+                    string jsonContent = await File.ReadAllTextAsync(credentialsPath);
+                    using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                    {
+                        if (doc.RootElement.TryGetProperty("project_id", out JsonElement projectIdElement))
+                        {
+                            string projectId = projectIdElement.GetString();
+                            _firestoreDb = await FirestoreDb.CreateAsync(projectId);
+                        }
+                        else
+                        {
+                             System.Diagnostics.Debug.WriteLine("project_id not found in credentials file!");
+                        }
+                    }
                 }
                 else
                 {

@@ -4,14 +4,15 @@ using Zinote.Services;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
+using Zinote.Helpers;
 
 namespace Zinote;
 
-[QueryProperty(nameof(CollectionName), "CollectionName")]
+[QueryProperty(nameof(CollectionName), Constants.NavCollectionName)]
 public partial class MainPage : ContentPage
 {
     private readonly DataService _dataService;
-    private string _collectionName = "dictionary_items"; // Default
+    private string _collectionName = string.Empty; // Initialized empty, set via navigation
     private CancellationTokenSource _debounceCts;
 
     public string CollectionName
@@ -67,14 +68,14 @@ public partial class MainPage : ContentPage
 
     private async void OnAddClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync($"{nameof(Pages.ItemDetailPage)}?CollectionName={_collectionName}");
+        await Shell.Current.GoToAsync($"{nameof(Pages.ItemDetailPage)}?{Constants.NavCollectionName}={_collectionName}");
     }
 
     private async void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (e.CurrentSelection.FirstOrDefault() is DictionaryItem item)
         {
-            await Shell.Current.GoToAsync($"{nameof(Pages.ItemDetailPage)}?ItemId={item.Id}&CollectionName={_collectionName}");
+            await Shell.Current.GoToAsync($"{nameof(Pages.ItemDetailPage)}?{Constants.NavItemId}={item.Id}&{Constants.NavCollectionName}={_collectionName}");
             // Deselect item
             ItemsCollectionView.SelectedItem = null;
         }
