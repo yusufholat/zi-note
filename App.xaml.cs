@@ -19,13 +19,11 @@ public partial class App : Application
             handler.PlatformView.BorderThickness = new Microsoft.UI.Xaml.Thickness(0);
 #endif
         });
-
-		MainPage = new AppShell();
 	}
 
     protected override Window CreateWindow(IActivationState activationState)
     {
-        var window = base.CreateWindow(activationState);
+        var window = new Window(new AppShell());
 
         const int newWidth = 500;
         const int newHeight = 700;

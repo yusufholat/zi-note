@@ -22,11 +22,7 @@ namespace Zinote.Helpers
                     if (mergedDictionaries != null)
                     {
                         // Create new theme
-                        var newThemeSource = IsDarkTheme 
-                            ? "Resources/Styles/ThemeDark.xaml" 
-                            : "Resources/Styles/ThemeLight.xaml";
-                        
-                        var newTheme = new ResourceDictionary { Source = new Uri(newThemeSource, UriKind.Relative) };
+                        ResourceDictionary newTheme = IsDarkTheme ? new Resources.Styles.ThemeDark() : new Resources.Styles.ThemeLight();
 
                         // Add new theme FIRST (to ensure resources exist)
                         mergedDictionaries.Add(newTheme);

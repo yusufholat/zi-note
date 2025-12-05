@@ -11,12 +11,12 @@
                    FontAttributes="Bold" 
                    VerticalOptions="Center" 
                    HorizontalOptions="Center" 
-                   TextColor="White"/>
+                   TextColor="{DynamicResource DynamicShellTitleColor}"/>
             <Label Text="{DynamicResource DynamicThemeIcon}" 
                    FontSize="22" 
                    VerticalOptions="Center" 
                    HorizontalOptions="End"
-                   TextColor="White"
+                   TextColor="{DynamicResource DynamicShellTitleColor}"
                    Margin="0,0,10,0">
                 <Label.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnThemeClicked"/>
@@ -33,28 +33,28 @@
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto" ColumnSpacing="20" Margin="0,30,0,0">
                 
                 <!-- Health Dictionary Hub -->
-                <Frame Grid.Column="0" HeightRequest="200" CornerRadius="15" BackgroundColor="{DynamicResource DynamicCardBackground}" BorderColor="{DynamicResource DynamicBorder}" HasShadow="True">
-                    <Frame.GestureRecognizers>
+                <Border Grid.Column="0" HeightRequest="200" StrokeShape="RoundRectangle 15" BackgroundColor="{DynamicResource DynamicCardBackground}" Stroke="{DynamicResource DynamicBorder}">
+                    <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnHubTapped" CommandParameter="health_dictionary" />
-                    </Frame.GestureRecognizers>
+                    </Border.GestureRecognizers>
                     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
                         <Label Text="⚕️" FontSize="60" HorizontalOptions="Center" TextColor="{DynamicResource DynamicPrimaryText}"/>
                         <Label Text="Health Dictionary" TextColor="{DynamicResource DynamicPrimaryText}" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
                         <Label Text="Sağlık Sözlüğü" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="14" HorizontalOptions="Center" />
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- Military Dictionary Hub -->
-                <Frame Grid.Column="1" HeightRequest="200" CornerRadius="15" BackgroundColor="{DynamicResource DynamicCardBackground}" BorderColor="{DynamicResource DynamicBorder}" HasShadow="True">
-                    <Frame.GestureRecognizers>
+                <Border Grid.Column="1" HeightRequest="200" StrokeShape="RoundRectangle 15" BackgroundColor="{DynamicResource DynamicCardBackground}" Stroke="{DynamicResource DynamicBorder}">
+                    <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnHubTapped" CommandParameter="military_dictionary" />
-                    </Frame.GestureRecognizers>
+                    </Border.GestureRecognizers>
                     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
                         <Label Text="⚔️" FontSize="60" HorizontalOptions="Center" TextColor="{DynamicResource DynamicPrimaryText}"/>
                         <Label Text="Military Dictionary" TextColor="{DynamicResource DynamicPrimaryText}" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
                         <Label Text="Askeri Sözlük" TextColor="{DynamicResource DynamicSecondaryText}" FontSize="14" HorizontalOptions="Center" />
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
             </Grid>
         </VerticalStackLayout>

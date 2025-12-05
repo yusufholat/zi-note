@@ -28,10 +28,10 @@ public partial class HubPage : ContentPage
             // Let's use the sender.
         }
         
-        // Better approach: Get the Frame and its GestureRecognizers
-        if (sender is Frame frame && frame.GestureRecognizers.Count > 0)
+        // Better approach: Get the Border and its GestureRecognizers
+        if (sender is Border border && border.GestureRecognizers.Count > 0)
         {
-            var tapGesture = frame.GestureRecognizers[0] as TapGestureRecognizer;
+            var tapGesture = border.GestureRecognizers[0] as TapGestureRecognizer;
             if (tapGesture != null && tapGesture.CommandParameter is string collectionName)
             {
                 // Navigate to MainPage with CollectionName
