@@ -1,50 +1,53 @@
-# Zinote
+# zi-lex
 
-Zinote is a cross-platform dictionary management application built with .NET MAUI. It provides a comprehensive solution for managing multiple specialized dictionary collections with support for bilingual terms, definitions, and seamless data export.
+**zi-lex** is a specialized terminology management application built with .NET MAUI. It is designed to act as a central hub for managing diverse dictionary collections (Health, Military, etc.), offering advanced features for term definitions, bilingual support (English-Turkish), and professional data export options.
 
 ## Features
 
-### Multi-Collection Management
-- **Hub-based Navigation**: Access different dictionary collections from a central hub
-- **Specialized Collections**: Pre-configured collections for different domains (Health Dictionary, Military Dictionary, etc.)
-- **Dynamic Collection Support**: Easily switch between different dictionary collections
+### 📚 Multi-Collection Hub
+- **Centralized Dashboard**: Access all your terminologies from a single, modern "Hub" interface.
+- **Specialized Modules**: 
+    - **Health Dictionary**: For medical terms and definitions.
+    - **Military Dictionary**: For army and defense terminology.
+- **Extensible Architecture**: Easily adaptable for new domains (Legal, Technical, etc.).
 
-### Dictionary Item Management
-- **Bilingual Support**: Manage source terms (English) and target terms (Turkish)
-- **Rich Definitions**: Add detailed definitions for each term
-- **CRUD Operations**: Create, read, update, and delete dictionary entries
-- **Real-time Search**: Search across source terms, target terms, and definitions
+### 📝 Terminology Management
+- **Bilingual Support**: Dedicated fields for Source Term (English) and Target Term (Turkish).
+- **Rich Data Model**:
+    - Definitions
+    - Notes / Comments
+    - Examples of Use
+    - Domain & Sub-domain tagging
+- **Forbidden Terms**: Mark terms as "Do not translate" or "Forbidden".
+- **Real-time Search**: Instant filtering by term, translation, or definition.
 
-### Data Export
-- **CSV Export**: Export dictionary data to standard CSV format
-- **Matecat Export**: Export data in Matecat-compatible format for translation workflows
-- **Organized Exports**: Files are saved with timestamps in the Documents folder
+### 📤 Professional Export
+- **Standard Exports**:
+    - **CSV**: Basic comma-separated values.
+    - **Excel**: Formatted native Excel (.xlsx) files.
+- **CAT Tool Integration**:
+    - **Matecat**: Specialized CSV and Excel formats ready for Matecat import.
+    - **Smartcat**: Customized export formats for Smartcat workflows.
 
-### Cloud Storage
-- **Firebase Firestore Integration**: Cloud-based data storage and synchronization
-- **Secure Authentication**: Firebase credentials management
-- **Real-time Updates**: Automatic data synchronization
-
-### Cross-Platform Support
-- **Windows**: Native Windows application
-- **Android**: Mobile app support
-- **iOS**: iPhone and iPad support
-- **macOS**: Mac Catalyst support
+### ☁️ Cloud & Security
+- **Firebase Firestore**: Real-time cloud database for instant synchronization across devices.
+- **Secure Configuration**: Credential-based access management.
 
 ## Technology Stack
 
-- **.NET MAUI**: Cross-platform framework
-- **Firebase Firestore**: Cloud database
-- **C#**: Primary programming language
-- **XAML**: UI markup language
+- **.NET MAUI 9.0**: Cross-platform framework (Windows, Android, iOS, macOS).
+- **C# 12**: Core logic and business rules.
+- **Firebase Firestore**: NoSQL cloud database.
+- **ClosedXML**: Library for high-fidelity Excel file generation.
+- **XAML**: Modern UI definition.
 
 ## Getting Started
 
 ### Prerequisites
 
-- .NET 7.0 SDK or later
-- Visual Studio 2022 (with .NET MAUI workload) or Visual Studio Code
-- Firebase project with Firestore enabled
+- .NET 9.0 SDK
+- Visual Studio 2022 (with .NET MAUI workload) or VS Code
+- A valid `firebase-credentials.json` file (Google Service Account)
 
 ### Setup
 
@@ -54,24 +57,14 @@ Zinote is a cross-platform dictionary management application built with .NET MAU
    cd zi-note
    ```
 
-2. **Configure Firebase**
-   - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-   - Enable Firestore Database
-   - Download your service account credentials JSON file
-   - Place the file as `firebase-credentials.json` in the project root
+2. **Configure Credentials**
+   - Place your `firebase-credentials.json` file in the root directory.
+   - *Note: This file is git-ignored for security.*
 
-3. **Restore dependencies**
+3. **Build & Run**
    ```bash
    dotnet restore
-   ```
-
-4. **Build the project**
-   ```bash
    dotnet build
-   ```
-
-5. **Run the application**
-   ```bash
    dotnet run
    ```
 
@@ -79,66 +72,32 @@ Zinote is a cross-platform dictionary management application built with .NET MAU
 
 ```
 zi-note/
+├── Helpers/
+│   └── Constants.cs            # App-wide constants (Names, Keys)
 ├── Models/
-│   └── DictionaryItem.cs      # Data model for dictionary entries
+│   └── DictionaryItem.cs       # Firestore data model
 ├── Pages/
-│   ├── HubPage.xaml            # Main hub for collection selection
-│   ├── HubPage.xaml.cs
-│   ├── ItemDetailPage.xaml     # Item creation/editing page
-│   └── ItemDetailPage.xaml.cs
+│   ├── HubPage.xaml            # Main dashboard
+│   ├── DictionaryListPage.xaml # List/Search view for a collection
+│   └── ItemDetailPage.xaml     # CRUD form
+├── Resources/
+│   ├── Components/
+│   │   └── HeaderView.xaml     # Reusable UI Header
+│   └── Languages/              # Localization (.resx)
 ├── Services/
-│   ├── DataService.cs          # Main data service with Firestore integration
-│   └── FirestoreService.cs     # Firebase Firestore service
-├── Platforms/                  # Platform-specific code
-│   ├── Android/
-│   ├── iOS/
-│   ├── Windows/
-│   └── MacCatalyst/
-├── Resources/                   # App resources (fonts, images, styles)
-└── Zinote.csproj               # Project file
+│   ├── DataService.cs          # Core logic (Firestore)
+│   └── ExportService.cs        # Data export logic (CSV, Excel)
+└── Zinote.csproj               # Project configuration
 ```
-
-## Usage
-
-1. **Launch the Application**: Start the app to see the Hub page with available dictionary collections
-2. **Select a Collection**: Tap on a collection card (e.g., Health Dictionary, Military Dictionary)
-3. **Manage Items**: 
-   - Use the search bar to find specific terms
-   - Tap "Add New" to create a new dictionary entry
-   - Tap on an existing item to edit it
-   - Use the delete button to remove items
-4. **Export Data**: 
-   - Click "Export CSV" for standard CSV format
-   - Click "Export Matecat" for Matecat translation format
-
-## Configuration
-
-### Firebase Project ID
-The Firebase project ID is configured in `Services/DataService.cs`. Update the `ProjectId` constant if needed:
-```csharp
-private const string ProjectId = "zinote-83c37";
-```
-
-### Default Collection
-The default collection name is `"dictionary_items"` but can be changed per collection in the Hub page.
-
-## Security Notes
-
-- `firebase-credentials.json` is excluded from version control for security
-- Never commit Firebase credentials to the repository
-- Use environment variables or secure credential storage in production
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
 
-[Add your license here]
-
-## Support
-
-For issues and questions, please open an issue in the repository.
+Distributed under the MIT License. See `LICENSE` for more information.

@@ -19,6 +19,7 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
             builder.Services.AddSingleton<Services.DataService>();
+            builder.Services.AddTransient<Services.ExportService>();
             builder.Services.AddTransient<Pages.DictionaryListPage>();
             builder.Services.AddTransient<Pages.ItemDetailPage>();
             builder.Services.AddTransient<Pages.HubPage>();

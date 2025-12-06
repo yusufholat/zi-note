@@ -12,10 +12,9 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 
 		<!-- Display name -->
-		<ApplicationTitle>Zinote</ApplicationTitle>
-
+		<ApplicationTitle>zi-lex</ApplicationTitle>
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.zinote</ApplicationId>
+		<ApplicationId>com.companyname.zilex</ApplicationId>
 		<ApplicationIdGuid>7f5308e6-098e-47e7-a284-a83893850ec6</ApplicationIdGuid>
 
 		<!-- Versions -->

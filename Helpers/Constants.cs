@@ -3,7 +3,7 @@ namespace Zinote.Helpers
     public static class Constants
     {
         public const string CredentialsFileName = "firebase-credentials.json";
-        public const string AppName = "zi-note";
+        public const string AppName = "zi-lex";
 
         
         // Navigation Parameters

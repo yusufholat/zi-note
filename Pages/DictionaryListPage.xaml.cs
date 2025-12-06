@@ -12,6 +12,7 @@ namespace Zinote.Pages;
 public partial class DictionaryListPage : ContentPage
 {
     private readonly DataService _dataService;
+    private readonly ExportService _exportService;
     private string _collectionName = string.Empty; // Initialized empty, set via navigation
     private CancellationTokenSource _debounceCts;
 
@@ -30,10 +31,11 @@ public partial class DictionaryListPage : ContentPage
         }
     }
 
-    public DictionaryListPage(DataService dataService)
+    public DictionaryListPage(DataService dataService, ExportService exportService)
     {
         InitializeComponent();
         _dataService = dataService;
+        _exportService = exportService;
         BindingContext = this;
         
         LocalizationResourceManager.Instance.PropertyChanged += (sender, e) =>
@@ -145,22 +147,22 @@ public partial class DictionaryListPage : ContentPage
                 switch (action)
                 {
                     case "Basic CSV":
-                        filePath = await _dataService.ExportToCsvAsync(_collectionName);
+                        filePath = await _exportService.ExportToCsvAsync(_collectionName);
                         break;
                     case "Basic Excel":
-                        filePath = await _dataService.ExportToExcelAsync(_collectionName);
+                        filePath = await _exportService.ExportToExcelAsync(_collectionName);
                         break;
                     case "Matecat CSV":
-                        filePath = await _dataService.ExportToMatecatAsync(_collectionName);
+                        filePath = await _exportService.ExportToMatecatAsync(_collectionName);
                         break;
                     case "Matecat Excel":
-                        filePath = await _dataService.ExportToMatecatExcelAsync(_collectionName);
+                        filePath = await _exportService.ExportToMatecatExcelAsync(_collectionName);
                         break;
                     case "Smartcat CSV":
-                        filePath = await _dataService.ExportToSmartcatCsvAsync(_collectionName);
+                        filePath = await _exportService.ExportToSmartcatCsvAsync(_collectionName);
                         break;
                     case "Smartcat Excel":
-                        filePath = await _dataService.ExportToSmartcatExcelAsync(_collectionName);
+                        filePath = await _exportService.ExportToSmartcatExcelAsync(_collectionName);
                         break;
                 }
 
