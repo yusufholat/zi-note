@@ -1,75 +1,69 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:Zinote.Resources.Components"
+             xmlns:helpers="clr-namespace:Zinote.Helpers"
              x:Class="Zinote.Pages.LoginPage"
-             NavigationPage.HasNavigationBar="False">
+             Shell.NavBarIsVisible="True"
+             Shell.TabBarIsVisible="False"
+             Background="{DynamicResource LoginBackgroundBrush}">
 
-    <ContentPage.Background>
-        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#0F2027" Offset="0.0" />
-            <GradientStop Color="#203A43" Offset="0.5" />
-            <GradientStop Color="#2C5364" Offset="1.0" />
-        </LinearGradientBrush>
-    </ContentPage.Background>
-
+    <Shell.TitleView>
+        <components:HeaderView TitleText="" ShowProfile="False" ShowLogo="True" />
+    </Shell.TitleView>
+    
     <Grid>
-
-        <!-- Main Content -->
-        <Border Stroke="Transparent"
+        <!-- Main Content (Centered) -->
+        <Border Stroke="{DynamicResource LoginBorderStroke}"
                 StrokeThickness="0"
-                BackgroundColor="#20FFFFFF"
+                BackgroundColor="{DynamicResource LoginBorderBackground}"
                 HorizontalOptions="Center"
                 VerticalOptions="Center"
                 WidthRequest="340"
                 Padding="30"
                 StrokeShape="RoundRectangle 20">
             
-            <VerticalStackLayout Spacing="25">
+            <VerticalStackLayout Spacing="20">
                 <!-- Branding -->
                 <Image Source="appicon_logo.svg"
-                       HeightRequest="80"
+                       HeightRequest="70"
                        HorizontalOptions="Center" />
                        
-                <Label Text="zi-lex"
-                       FontSize="28"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center"
-                       TextColor="White"
-                       Margin="0,-10,0,0"/>
-
-                <Label Text="Sign in to continue"
+                <Label Text="{helpers:Translate LoginTitle}"
                        FontSize="15"
                        HorizontalOptions="Center"
-                       TextColor="#D0D0D0" />
+                       TextColor="{DynamicResource LoginTitleColor}" />
 
                 <!-- Inputs -->
                 <VerticalStackLayout Spacing="15">
-                    <Border Stroke="#50FFFFFF" StrokeShape="RoundRectangle 10" BackgroundColor="#15FFFFFF" Padding="15,0" HeightRequest="50">
+                    <Border Padding="15,0" StrokeShape="RoundRectangle 10" Stroke="{DynamicResource LoginBorderStroke}" BackgroundColor="{DynamicResource LoginInputBackground}" HeightRequest="50">
                         <Entry x:Name="EmailEntry"
-                               Placeholder="Email"
-                               PlaceholderColor="#A0A0A0"
-                               TextColor="White"
+                               Placeholder="{helpers:Translate EmailPlaceholder}"
+                               PlaceholderColor="{DynamicResource LoginInputPlaceholderColor}"
+                               TextColor="{DynamicResource LoginInputText}"
                                Keyboard="Email"
                                BackgroundColor="Transparent"
+                               VerticalTextAlignment="Center"
                                VerticalOptions="Center" />
                     </Border>
     
-                    <Border Stroke="#50FFFFFF" StrokeShape="RoundRectangle 10" BackgroundColor="#15FFFFFF" Padding="15,0" HeightRequest="50">
+                    <Border Padding="15,0" StrokeShape="RoundRectangle 10" Stroke="{DynamicResource LoginBorderStroke}" BackgroundColor="{DynamicResource LoginInputBackground}" HeightRequest="50">
                         <Entry x:Name="PasswordEntry"
-                               Placeholder="Password"
-                               PlaceholderColor="#A0A0A0"
-                               TextColor="White"
+                               Placeholder="{helpers:Translate PasswordPlaceholder}"
+                               PlaceholderColor="{DynamicResource LoginInputPlaceholderColor}"
+                               TextColor="{DynamicResource LoginInputText}"
                                IsPassword="True"
                                BackgroundColor="Transparent"
+                               VerticalTextAlignment="Center"
                                VerticalOptions="Center" />
                     </Border>
                 </VerticalStackLayout>
 
                 <!-- Actions -->
                 <Button x:Name="LoginButton"
-                        Text="LOGIN"
+                        Text="{helpers:Translate LoginButton}"
                         Clicked="OnLoginClicked"
-                        BackgroundColor="#007ACC"
-                        TextColor="White"
+                        BackgroundColor="{DynamicResource DynamicButtonBackground}"
+                        TextColor="{DynamicResource LoginButtonTextColor}"
                         FontAttributes="Bold"
                         CornerRadius="25"
                         HeightRequest="50"
@@ -80,23 +74,23 @@
                 </Button>
 
                 <Button x:Name="RegisterButton"
-                        Text="Create Account"
+                        Text="{helpers:Translate RegisterButton}"
                         Clicked="OnRegisterClicked"
                         BackgroundColor="Transparent"
-                        TextColor="#7BDDEF"
+                        TextColor="{DynamicResource LoginRegisterTextColor}"
                         FontSize="14"
                         HeightRequest="30"
-                        Padding="0" 
+                        Padding="20,0" 
                         HorizontalOptions="Center"/>
                 
-                <BoxView HeightRequest="1" Color="#30FFFFFF" Margin="20,0" />
+                <BoxView HeightRequest="1" Color="{DynamicResource LoginDividerColor}" Margin="20,0" />
 
                 <Button x:Name="GuestButton"
-                        Text="Continue as Guest"
+                        Text="{helpers:Translate GuestButton}"
                         Clicked="OnGuestClicked"
                         BackgroundColor="Transparent"
-                        TextColor="#E0E0E0"
-                        BorderColor="#50FFFFFF"
+                        TextColor="{DynamicResource LoginGuestTextColor}"
+                        BorderColor="{DynamicResource LoginGuestBorderColor}"
                         BorderWidth="1"
                         CornerRadius="20"
                         HeightRequest="40"
@@ -106,8 +100,8 @@
         </Border>
 
         <!-- Loading Overlay -->
-        <Grid x:Name="LoadingOverlay" BackgroundColor="#80000000" IsVisible="False">
-            <ActivityIndicator IsRunning="True" Color="White" VerticalOptions="Center" HorizontalOptions="Center" />
+        <Grid x:Name="LoadingOverlay" Grid.RowSpan="2" BackgroundColor="{DynamicResource DynamicOverlayBackground}" IsVisible="False">
+            <ActivityIndicator IsRunning="True" Color="{DynamicResource DynamicActivityIndicatorColor}" VerticalOptions="Center" HorizontalOptions="Center" />
         </Grid>
     </Grid>
 

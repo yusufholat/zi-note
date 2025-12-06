@@ -162,18 +162,89 @@ namespace Zinote.Services
             await docRef.UpdateAsync(updates);
         }
 
+        public async Task<(List<DictionaryItem> Items, object LastDocument)> GetPaginatedAsync(string collectionName, int limit, object lastDocument = null)
+        {
+            if (_firestoreDb == null) return (new List<DictionaryItem>(), null);
+
+            var collection = _firestoreDb.Collection(collectionName);
+            var query = collection.OrderBy("SourceTerm").Limit(limit);
+
+            if (lastDocument is DocumentSnapshot lastSnapshot)
+            {
+                query = query.StartAfter(lastSnapshot);
+            }
+
+            var snapshot = await query.GetSnapshotAsync();
+            var items = new List<DictionaryItem>();
+            DocumentSnapshot lastDoc = null;
+
+            if (snapshot.Count > 0)
+            {
+                lastDoc = snapshot.Documents[snapshot.Count - 1];
+                foreach (var document in snapshot.Documents)
+                {
+                    if (document.Exists)
+                    {
+                        var item = document.ConvertTo<DictionaryItem>();
+                        item.Id = document.Id;
+                         // Filter out soft-deleted items (treat null as false)
+                        if (!item.IsDeleted)
+                        {
+                            items.Add(item);
+                        }
+                    }
+                }
+            }
+
+            return (items, lastDoc);
+        }
+
         public async Task<List<DictionaryItem>> SearchAsync(string collectionName, string query)
         {
-            var allItems = await GetAllAsync(collectionName); // This already filters IsDeleted=false (client-side)
+            if (_firestoreDb == null) return new List<DictionaryItem>();
+            
+            var collection = _firestoreDb.Collection(collectionName);
 
+            // Optimization: If query is empty, usually we shouldn't be here in this new flow, but safe fallback
             if (string.IsNullOrWhiteSpace(query))
-                return allItems;
+            {
+                // Just get first batch if empty search
+               var (items, _) = await GetPaginatedAsync(collectionName, 20, null);
+               return items;
+            }
 
-            return allItems.Where(x => 
-                (x.SourceTerm?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) || 
-                (x.TargetTerm?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (x.Definition?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false))
-                .ToList();
+            // Server-side Prefix Search on SourceTerm
+            // Note: This matches "Startswith". 
+            // Case sensitivity depends on how data is stored. Firestore exact matches are case sensitive.
+            // If we stored exact casing, this might miss "apple" if searching "App". 
+            // For now, we assume user types correct case or we standardise storage later.
+            // Standard approach: Use a "SourceTerm_Lower" field. But user didn't ask for schema change yet.
+            // We will trust standard behaviour for now.
+            
+            // Note: We cannot filter IsDeleted=false AND do a range query on SourceTerm without composite index.
+            // So we might fetch deleted items too and filter in memory.
+            
+            var endQuery = query + "\uf8ff";
+            var queryRef = collection
+                .WhereGreaterThanOrEqualTo("SourceTerm", query)
+                .WhereLessThanOrEqualTo("SourceTerm", endQuery);
+
+            var snapshot = await queryRef.GetSnapshotAsync();
+            
+            var results = new List<DictionaryItem>();
+            foreach (var document in snapshot.Documents)
+            {
+                if (document.Exists)
+                {
+                     var item = document.ConvertTo<DictionaryItem>();
+                     item.Id = document.Id;
+                     if (!item.IsDeleted)
+                     {
+                         results.Add(item);
+                     }
+                }
+            }
+            return results;
         }
 
 
@@ -189,5 +260,36 @@ namespace Zinote.Services
 
 
 
+
+        public async Task AddBatchAsync(string collectionName, List<DictionaryItem> items)
+        {
+            if (_firestoreDb == null || items == null || !items.Any()) return;
+
+            var collection = _firestoreDb.Collection(collectionName);
+            var batchSize = 500;
+
+            for (int i = 0; i < items.Count; i += batchSize)
+            {
+                var batch = _firestoreDb.StartBatch();
+                var batchItems = items.Skip(i).Take(batchSize);
+
+                foreach (var item in batchItems)
+                {
+                    // Ensure ID
+                    if (string.IsNullOrEmpty(item.Id)) item.Id = Guid.NewGuid().ToString();
+
+                    // Audit - reusing logic from AddAsync
+                    item.CreatedAt = DateTime.UtcNow;
+                    item.CreatedBy = _authService.CurrentUser?.Email ?? "Unknown";
+                    item.ModifiedAt = DateTime.UtcNow;
+                    item.ModifiedBy = item.CreatedBy;
+                    item.IsDeleted = false;
+
+                    var docRef = collection.Document(item.Id);
+                    batch.Set(docRef, item);
+                }
+                await batch.CommitAsync();
+            }
+        }
     }
 }

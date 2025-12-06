@@ -7,10 +7,14 @@
              x:DataType="local:HeaderView"
              x:Name="ThisHeader">
 
-    <Grid Margin="0,0,0,0" ColumnDefinitions="*, Auto" VerticalOptions="Fill">
+    <Grid ColumnDefinitions="*, Auto" VerticalOptions="Fill" Padding="10,0">
         
-        <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center" HorizontalOptions="Start" Margin="15,0,0,0">
-            <Image Source="appicon_logo.svg" HeightRequest="24" WidthRequest="24" VerticalOptions="Center" />
+        <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center" HorizontalOptions="Start">
+            <Image Source="appicon_logo.svg" 
+                   HeightRequest="24" 
+                   WidthRequest="24" 
+                   VerticalOptions="Center" 
+                   IsVisible="{Binding ShowLogo, Source={x:Reference ThisHeader}}" />
             <Label Text="{Binding TitleText, Source={x:Reference ThisHeader}}" 
                    FontSize="20" 
                    FontAttributes="Bold" 
@@ -49,7 +53,8 @@
 
             <!-- Profile Button -->
             <Border StrokeShape="RoundRectangle 8" BackgroundColor="{DynamicResource DynamicHeaderButtonBg}" 
-                    StrokeThickness="0" Padding="8,4" WidthRequest="45" HeightRequest="32">
+                    StrokeThickness="0" Padding="8,4" WidthRequest="45" HeightRequest="32"
+                    IsVisible="{Binding ShowProfile, Source={x:Reference ThisHeader}}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnProfileClicked"/>
                 </Border.GestureRecognizers>

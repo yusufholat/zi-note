@@ -33,7 +33,7 @@ public partial class LoginPage : ContentPage
 
 			if (string.IsNullOrEmpty(error))
 			{
-				Application.Current.MainPage = new AppShell();
+				await Shell.Current.GoToAsync("//HubPage");
 			}
 			else
 			{
@@ -68,7 +68,7 @@ public partial class LoginPage : ContentPage
             if (string.IsNullOrEmpty(error))
             {
                 await DisplayAlert("Success", "Account created! You are now logged in.", "OK");
-                Application.Current.MainPage = new AppShell();
+                await Shell.Current.GoToAsync("//HubPage");
             }
             else
             {
@@ -81,10 +81,15 @@ public partial class LoginPage : ContentPage
         }
     }
 
-    private void OnGuestClicked(object sender, EventArgs e)
+    private async void OnGuestClicked(object sender, EventArgs e)
     {
         _authService.LoginAsGuest();
-        Application.Current.MainPage = new AppShell();
+        await Shell.Current.GoToAsync("//HubPage");
+    }
+
+    protected override bool OnBackButtonPressed()
+    {
+        return true; // Disable back button
     }
 
     private void SetLoading(bool isLoading)

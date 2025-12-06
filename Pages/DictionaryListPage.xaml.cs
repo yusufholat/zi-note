@@ -13,6 +13,7 @@ public partial class DictionaryListPage : ContentPage
 {
     private readonly DataService _dataService;
     private readonly ExportService _exportService;
+    private readonly ImportService _importService;
     private readonly AuthService _authService;
     private string _collectionName = string.Empty; // Initialized empty, set via navigation
     private CancellationTokenSource _debounceCts;
@@ -32,14 +33,24 @@ public partial class DictionaryListPage : ContentPage
         }
     }
 
-    public DictionaryListPage(DataService dataService, ExportService exportService, AuthService authService)
+    private ObservableCollection<DictionaryItem> _items = new ObservableCollection<DictionaryItem>();
+    private object _lastDocument;
+    private const int _pageSize = 20;
+    private bool _isLoadingMore;
+    private bool _isDetailedSearch = false; // Flag to check if we are in search mode
+
+    public DictionaryListPage(DataService dataService, ExportService exportService, ImportService importService, AuthService authService)
     {
         InitializeComponent();
         _dataService = dataService;
         _exportService = exportService;
+        _importService = importService;
         _authService = authService;
         BindingContext = this;
         
+        // Initial setup
+        ItemsCollectionView.ItemsSource = _items;
+
         LocalizationResourceManager.Instance.PropertyChanged += (sender, e) =>
         {
             // Re-trigger title update when language changes
@@ -56,24 +67,64 @@ public partial class DictionaryListPage : ContentPage
     {
         base.OnAppearing();
         await _dataService.InitializeAsync();
-        await LoadDataAsync();
+        
+        // Only load if empty or if needed. 
+        // If we want a fresh reload every time we appear (e.g. after adding item), we can clear and load.
+        if (_items.Count == 0)
+        {
+             await LoadDataAsync(true);
+        }
         
         // Hide Buttons for Guest
         bool isGuest = _authService.CurrentUser?.IsGuest ?? false;
         if (isGuest)
         {
             if (AddButton != null) AddButton.IsVisible = false;
-            // Keeping Export visible for guests? Requirement said "Restrict DataService/UI for Guest (Read-Only)".
-            // Read-Only implies viewing. Exporting is viewing in a file. So maybe allow export?
-            // "data modification features" vs "view". Export is safe. Add/Delete is not.
-            // But let's verify if user wants export restrictions. Assuming safe for now.
         }
     }
 
-    private async Task LoadDataAsync()
+    private async Task LoadDataAsync(bool isRefresh = false)
     {
-        var items = await _dataService.SearchAsync(_collectionName, SearchBar.Text);
-        ItemsCollectionView.ItemsSource = items;
+        if (isRefresh)
+        {
+            _items.Clear();
+            _lastDocument = null;
+            _isDetailedSearch = false; // Reset search mode
+        }
+
+        // If we are searching, we use SearchAsync instead of Pagination
+        if (!string.IsNullOrWhiteSpace(SearchBar.Text))
+        {
+             await PerformSearchAsync(SearchBar.Text);
+             return;
+        }
+
+        var (newItems, lastDoc) = await _dataService.GetPaginatedAsync(_collectionName, _pageSize, _lastDocument);
+        _lastDocument = lastDoc;
+
+        foreach (var item in newItems)
+        {
+            // Verify not already in list (optional, for safety)
+            _items.Add(item);
+        }
+    }
+
+    private async void OnRemainingItemsThresholdReached(object sender, EventArgs e)
+    {
+        if (_isLoadingMore || _isDetailedSearch) return; // Don't paginate if searching or already loading
+
+        _isLoadingMore = true;
+        try
+        {
+            if (_lastDocument != null) // Only load if there are more pages
+            {
+                await LoadDataAsync(false);
+            }
+        }
+        finally
+        {
+            _isLoadingMore = false;
+        }
     }
 
     private async void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
@@ -84,15 +135,39 @@ public partial class DictionaryListPage : ContentPage
 
         try
         {
-            await Task.Delay(500, token);
+            // Updated to 1000ms delay for optimization
+            await Task.Delay(1000, token);
             if (!token.IsCancellationRequested)
             {
-                await LoadDataAsync();
+                var text = e.NewTextValue;
+
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    // Reset to initial paginated state
+                    await LoadDataAsync(true);
+                }
+                else if (text.Length >= 2) // Min 2 chars to search
+                {
+                    await PerformSearchAsync(text);
+                }
+                // If 1 char, do nothing (keep previous state)
             }
         }
         catch (TaskCanceledException)
         {
             // Ignore cancellation
+        }
+    }
+
+    private async Task PerformSearchAsync(string query)
+    {
+        _isDetailedSearch = true; // Block pagination while searching
+        var items = await _dataService.SearchAsync(_collectionName, query);
+        
+        _items.Clear();
+        foreach(var item in items)
+        {
+            _items.Add(item);
         }
     }
 
@@ -111,10 +186,13 @@ public partial class DictionaryListPage : ContentPage
         if (e.CurrentSelection.FirstOrDefault() is DictionaryItem item)
         {
             await Shell.Current.GoToAsync($"{nameof(Pages.ItemDetailPage)}?{Constants.NavItemId}={item.Id}&{Constants.NavCollectionName}={_collectionName}");
-            // Deselect item
-            ItemsCollectionView.ItemsSource = null; // Bug fix: Clear selection properly or just rely on binding
+            
+            // Deselect item without breaking binding
             ItemsCollectionView.SelectedItem = null;
-            await LoadDataAsync(); // Reload to refresh selection state if needed, or just let it be
+            
+            // Refresh list to show potential updates (e.g. edited item)
+            // Note: This resets pagination to page 1.
+            await LoadDataAsync(true); 
         }
     }
 
@@ -137,12 +215,10 @@ public partial class DictionaryListPage : ContentPage
             if (answer)
             {
                 await _dataService.DeleteAsync(_collectionName, id);
-                await LoadDataAsync();
+                await LoadDataAsync(true); // Refresh list
             }
         }
     }
-
-
 
     private void OnExportOptionsClicked(object sender, EventArgs e)
     {
@@ -160,9 +236,6 @@ public partial class DictionaryListPage : ContentPage
     {
         if (sender is Button button && button.CommandParameter is string action)
         {
-            // Close overlay immediately or after operation? Usually better to close immediately
-            // But if there is an error, maybe keep it open?
-            // Let's close it first for smoother UX
             ExportOverlay.IsVisible = false;
 
             try
@@ -170,22 +243,22 @@ public partial class DictionaryListPage : ContentPage
                 string filePath = "";
                 switch (action)
                 {
-                    case "Basic CSV":
+                    case Constants.TypeBasicCsv:
                         filePath = await _exportService.ExportToCsvAsync(_collectionName);
                         break;
-                    case "Basic Excel":
+                    case Constants.TypeBasicExcel:
                         filePath = await _exportService.ExportToExcelAsync(_collectionName);
                         break;
-                    case "Matecat CSV":
+                    case Constants.TypeMatecatCsv:
                         filePath = await _exportService.ExportToMatecatAsync(_collectionName);
                         break;
-                    case "Matecat Excel":
+                    case Constants.TypeMatecatExcel:
                         filePath = await _exportService.ExportToMatecatExcelAsync(_collectionName);
                         break;
-                    case "Smartcat CSV":
+                    case Constants.TypeSmartcatCsv:
                         filePath = await _exportService.ExportToSmartcatCsvAsync(_collectionName);
                         break;
-                    case "Smartcat Excel":
+                    case Constants.TypeSmartcatExcel:
                         filePath = await _exportService.ExportToSmartcatExcelAsync(_collectionName);
                         break;
                 }
@@ -198,6 +271,99 @@ public partial class DictionaryListPage : ContentPage
             catch (Exception ex)
             {
                 await DisplayAlert("Error", $"Export failed: {ex.Message}", "OK");
+            }
+        }
+    }
+
+    private void OnImportOptionsClicked(object sender, EventArgs e)
+    {
+        ImportOverlay.IsVisible = true;
+    }
+
+    private void OnImportOverlayClose(object sender, EventArgs e)
+    {
+        ImportOverlay.IsVisible = false;
+    }
+
+    private async void OnImportFormatClicked(object sender, EventArgs e)
+    {
+        if (sender is Button button && button.CommandParameter is string importType)
+        {
+            ImportOverlay.IsVisible = false;
+
+            try
+            {
+                var customFileType = new FilePickerFileType(
+                    new Dictionary<DevicePlatform, IEnumerable<string>>
+                    {
+                        { DevicePlatform.iOS, new[] { "public.comma-separated-values-text" } },
+                        { DevicePlatform.Android, new[] { "text/comma-separated-values", "text/csv" } },
+                        { DevicePlatform.WinUI, new[] { ".csv" } },
+                        { DevicePlatform.MacCatalyst, new[] { "public.comma-separated-values-text" } }
+                    });
+
+                var options = new PickOptions
+                {
+                    PickerTitle = "Select backup file",
+                    FileTypes = importType.Contains("Excel") ? FilePickerFileType.Images : customFileType // Images is wrong, need Xlsx or all
+                };
+                
+                // Fix FileTypes for Excel
+                if (importType.Contains("Excel"))
+                {
+                      options.FileTypes = new FilePickerFileType(
+                        new Dictionary<DevicePlatform, IEnumerable<string>>
+                        {
+                            { DevicePlatform.iOS, new[] { "com.microsoft.excel.xls" } }, // Uniform Type Identifiers
+                            { DevicePlatform.Android, new[] { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" } },
+                            { DevicePlatform.WinUI, new[] { ".xlsx" } },
+                            { DevicePlatform.MacCatalyst, new[] { "com.microsoft.excel.xls" } } 
+                        });
+                }
+
+                var result = await FilePicker.Default.PickAsync(options);
+                if (result != null)
+                {
+                    using var stream = await result.OpenReadAsync();
+                    List<DictionaryItem> items = new List<DictionaryItem>();
+
+                    if (importType.Contains("CSV"))
+                    {
+                        items = _importService.ImportFromCsv(stream, importType);
+                    }
+                    else if (importType.Contains("Excel"))
+                    {
+                        items = _importService.ImportFromExcel(stream, importType);
+                    }
+
+                    if (items.Count > 0)
+                    {
+                         // Confirm
+                        bool confirm = await DisplayAlert(Constants.AppName, 
+                            $"Found {items.Count} items. Do you want to import them into '{_collectionName}'?", 
+                            LocalizationResourceManager.Instance["Yes"], 
+                            LocalizationResourceManager.Instance["No"]);
+                        
+                        if (confirm)
+                        {
+                            await _dataService.AddBatchAsync(_collectionName, items);
+                             await DisplayAlert(Constants.AppName, "Import successful!", "OK");
+                             await LoadDataAsync(true);
+                        }
+                    }
+                    else
+                    {
+                        await DisplayAlert(Constants.AppName, "No valid items found in the file.", "OK");
+                    }
+                }
+            }
+            catch (InvalidDataException ex)
+            {
+               await DisplayAlert("Validation Error", ex.Message, "OK");
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Import failed: {ex.Message}", "OK");
             }
         }
     }

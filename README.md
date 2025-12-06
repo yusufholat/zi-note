@@ -29,6 +29,11 @@
     - **Matecat**: Specialized CSV and Excel formats ready for Matecat import.
     - **Smartcat**: Customized export formats for Smartcat workflows.
 
+### 📥 Professional Import
+- **Bulk Data Import**: Easily import large datasets from CSV or Excel files.
+- **Intelligent Parsing**: Automatically detects and parses Matecat and Smartcat formatted files.
+- **Batch Processing**: Efficiently uploads validated data to Firebase in batches.
+
 ### ☁️ Cloud & Security
 - **Firebase Firestore**: Real-time cloud database for instant synchronization across devices.
 - **Secure Configuration**: Credential-based access management.
@@ -103,7 +108,8 @@ zi-note/
 │   └── Languages/              # Localization (.resx)
 ├── Services/
 │   ├── DataService.cs          # Core logic (Firestore)
-│   └── ExportService.cs        # Data export logic (CSV, Excel)
+│   ├── ExportService.cs        # Data export logic (CSV, Excel)
+│   └── ImportService.cs        # Data import logic (CSV, Excel)
 └── Zinote.csproj               # Project configuration
 ```
 

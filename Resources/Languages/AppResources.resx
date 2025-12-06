@@ -63,6 +63,10 @@
   <data name="ExportOptions" xml:space="preserve">
     <value>Export Options</value>
   </data>
+  <data name="ImportOptions" xml:space="preserve">
+    <value>Import Options</value>
+  </data>
+
   <data name="SearchPlaceholder" xml:space="preserve">
     <value>Search terms...</value>
   </data>
@@ -155,5 +159,23 @@
   </data>
   <data name="EnterExample" xml:space="preserve">
     <value>Enter example</value>
+  </data>
+  <data name="LoginTitle" xml:space="preserve">
+    <value>Sign in to continue</value>
+  </data>
+  <data name="EmailPlaceholder" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="PasswordPlaceholder" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="LoginButton" xml:space="preserve">
+    <value>LOGIN</value>
+  </data>
+  <data name="RegisterButton" xml:space="preserve">
+    <value>Create Account</value>
+  </data>
+  <data name="GuestButton" xml:space="preserve">
+    <value>Continue as Guest</value>
   </data>
 </root>

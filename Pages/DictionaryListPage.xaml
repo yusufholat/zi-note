@@ -6,35 +6,45 @@
              xmlns:components="clr-namespace:Zinote.Resources.Components"
              x:Class="Zinote.Pages.DictionaryListPage"
              x:DataType="local:DictionaryListPage"
-             Title="Zinote">
+             Title="Zinote"
+             Background="{DynamicResource PageBackgroundBrush}">
 
     <Shell.TitleView>
-        <components:HeaderView TitleText="{Binding Title}" />
+        <components:HeaderView TitleText="{Binding Title}" ShowLogo="False" />
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,Auto,*" Padding="15" RowSpacing="15" BackgroundColor="{DynamicResource DynamicPageBackground}">
+    <Grid RowDefinitions="Auto,Auto,*" Padding="15" RowSpacing="15">
         <!-- Row 0: Export --> 
-        <Button x:Name="ExportButton" Grid.Row="0" Text="{helpers:Translate ExportOptions}" Clicked="OnExportOptionsClicked" 
-                BackgroundColor="{DynamicResource DynamicAccent}" 
-                TextColor="{DynamicResource DynamicButtonText}" FontAttributes="Bold" CornerRadius="8" HeightRequest="36" Padding="15,0" 
-                HorizontalOptions="End"/>
+        <HorizontalStackLayout Grid.Row="0" HorizontalOptions="End" Spacing="10">
+            <Button x:Name="ImportButton" Text="{helpers:Translate ImportOptions}" Clicked="OnImportOptionsClicked" 
+                    BackgroundColor="{DynamicResource DynamicSuccessButtonBg}" 
+                    TextColor="{DynamicResource DynamicButtonText}" FontAttributes="Bold" CornerRadius="8" HeightRequest="36" Padding="15,0"/>
+
+            <Button x:Name="ExportButton" Text="{helpers:Translate ExportOptions}" Clicked="OnExportOptionsClicked" 
+                    BackgroundColor="{DynamicResource DynamicAccent}" 
+                    TextColor="{DynamicResource DynamicButtonText}" FontAttributes="Bold" CornerRadius="8" HeightRequest="36" Padding="15,0"/>
+        </HorizontalStackLayout>
 
         <!-- Row 1: Search & Add -->
         <Grid Grid.Row="1" ColumnDefinitions="*, Auto" ColumnSpacing="10">
-            <Frame Grid.Column="0" Padding="0" CornerRadius="10" HasShadow="False" BorderColor="{DynamicResource DynamicBorder}" BackgroundColor="{DynamicResource DynamicCardBackground}" HeightRequest="45">
+            <Border Grid.Column="0" Padding="0" StrokeShape="RoundRectangle 10" Stroke="{DynamicResource DynamicBorder}" BackgroundColor="{DynamicResource DynamicCardBackground}" HeightRequest="45">
                 <SearchBar x:Name="SearchBar" Placeholder="{helpers:Translate SearchPlaceholder}" TextChanged="OnSearchBarTextChanged" BackgroundColor="Transparent" VerticalOptions="Center"/>
-            </Frame>
+            </Border>
             <Button x:Name="AddButton" Grid.Column="1" Text="+" Clicked="OnAddClicked" FontSize="24" WidthRequest="45" HeightRequest="45" CornerRadius="22" BackgroundColor="{DynamicResource DynamicSuccessButtonBg}" TextColor="{DynamicResource DynamicButtonText}" Padding="0"/>
         </Grid>
 
         <!-- Row 2: List -->
-        <CollectionView x:Name="ItemsCollectionView" Grid.Row="2" SelectionMode="Single" SelectionChanged="OnSelectionChanged">
+        <CollectionView x:Name="ItemsCollectionView" Grid.Row="2" SelectionMode="Single" SelectionChanged="OnSelectionChanged"
+                        RemainingItemsThreshold="5" RemainingItemsThresholdReached="OnRemainingItemsThresholdReached">
             <CollectionView.ItemsLayout>
                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
             </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:DictionaryItem">
-                    <Frame Margin="0" Padding="0" CornerRadius="12" HasShadow="True" BorderColor="Transparent" BackgroundColor="{DynamicResource DynamicCardBackground}">
+                    <Border Margin="0" Padding="0" StrokeShape="RoundRectangle 12" Stroke="Transparent" BackgroundColor="{DynamicResource DynamicCardBackground}">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Opacity="0.1" Radius="5"/>
+                        </Border.Shadow>
                         <Grid ColumnDefinitions="5, *, Auto">
                             <!-- Left Accent Bar -->
                             <BoxView Grid.Column="0" Color="{DynamicResource DynamicAccent}" VerticalOptions="Fill"/>
@@ -53,14 +63,47 @@
                                      WidthRequest="36" HeightRequest="36" CornerRadius="18" Padding="0"
                                      VerticalOptions="Center" Margin="0,0,10,0"/>
                         </Grid>
-                    </Frame>
+
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
         <!-- Use Grid.RowSpan="3" to cover the entire page content -->
+        <!-- Use Grid.RowSpan="3" to cover the entire page content -->
+        <Grid x:Name="ImportOverlay" Grid.Row="0" Grid.RowSpan="3" BackgroundColor="{DynamicResource DynamicOverlayBackground}" IsVisible="False" ZIndex="999">
+            <Border BackgroundColor="{DynamicResource DynamicCardBackground}" StrokeShape="RoundRectangle 10" HorizontalOptions="Center" VerticalOptions="Center" Padding="25" WidthRequest="320" Stroke="Transparent">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="{helpers:Translate ImportOptions}" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{DynamicResource DynamicPrimaryText}" Margin="0,0,0,10"/>
+
+                    <!-- Basic -->
+                    <Label Text="{helpers:Translate BasicData}" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Text="CSV" Clicked="OnImportFormatClicked" CommandParameter="Basic CSV" BackgroundColor="{DynamicResource DynamicExportBasicBg}" TextColor="{DynamicResource DynamicExportBasicText}" BorderColor="{DynamicResource DynamicBorder}" BorderWidth="1"/>
+                        <Button Grid.Column="1" Text="Excel" Clicked="OnImportFormatClicked" CommandParameter="Basic Excel" BackgroundColor="{DynamicResource DynamicExportBasicBg}" TextColor="{DynamicResource DynamicExportBasicText}" BorderColor="{DynamicResource DynamicBorder}" BorderWidth="1"/>
+                    </Grid>
+
+                    <!-- Matecat -->
+                    <Label Text="{helpers:Translate Matecat}" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Text="CSV" Clicked="OnImportFormatClicked" CommandParameter="Matecat CSV" BackgroundColor="{DynamicResource DynamicExportMatecatBg}" TextColor="{DynamicResource DynamicExportMatecatText}" BorderColor="{DynamicResource DynamicExportMatecatText}" BorderWidth="1"/>
+                        <Button Grid.Column="1" Text="Excel" Clicked="OnImportFormatClicked" CommandParameter="Matecat Excel" BackgroundColor="{DynamicResource DynamicExportMatecatBg}" TextColor="{DynamicResource DynamicExportMatecatText}" BorderColor="{DynamicResource DynamicExportMatecatText}" BorderWidth="1"/>
+                    </Grid>
+
+                    <!-- Smartcat -->
+                    <Label Text="{helpers:Translate Smartcat}" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Grid.Column="0" Text="CSV" Clicked="OnImportFormatClicked" CommandParameter="Smartcat CSV" BackgroundColor="{DynamicResource DynamicExportSmartcatBg}" TextColor="{DynamicResource DynamicExportSmartcatText}" BorderColor="{DynamicResource DynamicExportSmartcatText}" BorderWidth="1"/>
+                        <Button Grid.Column="1" Text="Excel" Clicked="OnImportFormatClicked" CommandParameter="Smartcat Excel" BackgroundColor="{DynamicResource DynamicExportSmartcatBg}" TextColor="{DynamicResource DynamicExportSmartcatText}" BorderColor="{DynamicResource DynamicExportSmartcatText}" BorderWidth="1"/>
+                    </Grid>
+
+                    <Button Text="{helpers:Translate Close}" Clicked="OnImportOverlayClose" BackgroundColor="{DynamicResource DynamicCloseButtonBg}" TextColor="{DynamicResource DynamicButtonText}" Margin="0,20,0,0"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
         <Grid x:Name="ExportOverlay" Grid.Row="0" Grid.RowSpan="3" BackgroundColor="{DynamicResource DynamicOverlayBackground}" IsVisible="False" ZIndex="999">
-            <Frame BackgroundColor="{DynamicResource DynamicCardBackground}" CornerRadius="10" HorizontalOptions="Center" VerticalOptions="Center" Padding="25" WidthRequest="320" BorderColor="Transparent">
+            <Border BackgroundColor="{DynamicResource DynamicCardBackground}" StrokeShape="RoundRectangle 10" HorizontalOptions="Center" VerticalOptions="Center" Padding="25" WidthRequest="320" Stroke="Transparent">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="{helpers:Translate ExportOptions}" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{DynamicResource DynamicPrimaryText}" Margin="0,0,0,10"/>
 
@@ -87,7 +130,7 @@
 
                     <Button Text="{helpers:Translate Close}" Clicked="OnExportOverlayClose" BackgroundColor="{DynamicResource DynamicCloseButtonBg}" TextColor="{DynamicResource DynamicButtonText}" Margin="0,20,0,0"/>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
         </Grid>
     </Grid>
 

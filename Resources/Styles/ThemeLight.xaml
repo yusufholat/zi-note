@@ -3,14 +3,14 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                     x:Class="Zinote.Resources.Styles.ThemeLight">
     
-    <Color x:Key="DynamicPageBackground">#F5F5F5</Color>
-    <Color x:Key="DynamicCardBackground">White</Color>
-    <Color x:Key="DynamicInputBackground">#FAFAFA</Color>
-    <Color x:Key="DynamicPrimaryText">#333333</Color>
-    <Color x:Key="DynamicSecondaryText">#666666</Color>
-    <Color x:Key="DynamicAccent">#007ACC</Color>
-    <Color x:Key="DynamicBorder">#E0E0E0</Color>
-    <Color x:Key="DynamicDangerBackground">#FFEBEE</Color>
+    <Color x:Key="DynamicPageBackground">#F8FAFC</Color> <!-- Slate-50 -->
+    <Color x:Key="DynamicCardBackground">#FFFFFF</Color>
+    <Color x:Key="DynamicInputBackground">#F1F5F9</Color> <!-- Slate-100 -->
+    <Color x:Key="DynamicPrimaryText">#1E293B</Color> <!-- Slate-800 -->
+    <Color x:Key="DynamicSecondaryText">#475569</Color> <!-- Slate-600 -->
+    <Color x:Key="DynamicAccent">#4F46E5</Color> <!-- Indigo-600 -->
+    <Color x:Key="DynamicBorder">#CBD5E1</Color> <!-- Slate-300 -->
+    <Color x:Key="DynamicDangerBackground">#FEF2F2</Color> <!-- Red-50 -->
     
     <!-- Export UI Colors -->
     <Color x:Key="DynamicOverlayBackground">#99000000</Color>
@@ -27,15 +27,41 @@
     <Color x:Key="DynamicDeleteButtonText">#EF5350</Color>
     
     <!-- Component Colors (replacing static styles) -->
-    <Color x:Key="DynamicShellBackground">#007ACC</Color>
+    <Color x:Key="DynamicShellBackground">#2563EB</Color> <!-- Royal Blue -->
     <Color x:Key="DynamicShellTitleColor">#FFFFFF</Color>
-    <Color x:Key="DynamicButtonBackground">#007ACC</Color>
+    <Color x:Key="DynamicButtonBackground">#2563EB</Color> <!-- Royal Blue -->
     <Color x:Key="DynamicButtonText">#FFFFFF</Color>
     <Color x:Key="DynamicActivityIndicatorColor">#007ACC</Color>
     <Color x:Key="DynamicShellTabBarBackground">#FFFFFF</Color>
     <Color x:Key="DynamicShellTabBarTitleColor">#007ACC</Color>
     <Color x:Key="DynamicHeaderButtonBg">#20FFFFFF</Color>
     
+    <!-- Login Page Colors -->
+    <!-- Unified Page Background Gradient (Light Theme: Crystal Water - White to Aqua/Blue) -->
+    <LinearGradientBrush x:Key="PageBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#FFFFFF" Offset="0.0" />
+        <GradientStop Color="#E0F2F1" Offset="0.4" /> <!-- Teal-50 (Aqua tint) -->
+        <GradientStop Color="#BAE6FD" Offset="1.0" /> <!-- Sky-200 -->
+    </LinearGradientBrush>
+    
+    <!-- Alias for Login -->
+    <LinearGradientBrush x:Key="LoginBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+         <GradientStop Color="#FFFFFF" Offset="0.0" />
+         <GradientStop Color="#E0F2F1" Offset="0.5" />
+         <GradientStop Color="#BAE6FD" Offset="1.0" />
+    </LinearGradientBrush>
+    <Color x:Key="LoginInputPlaceholderColor">#546E7A</Color>
+    <Color x:Key="LoginInputText">#263238</Color>
+    <Color x:Key="LoginBorderStroke">#90A4AE</Color>
+    <Color x:Key="LoginBorderBackground">#CCFFFFFF</Color>
+    <Color x:Key="LoginDividerColor">#B0BEC5</Color>
+    <Color x:Key="LoginInputBackground">#80FFFFFF</Color>
+    <Color x:Key="LoginTitleColor">#455A64</Color>
+    <Color x:Key="LoginButtonTextColor">#FFFFFF</Color>
+    <Color x:Key="LoginGuestTextColor">#455A64</Color>
+    <Color x:Key="LoginGuestBorderColor">#78909C</Color>
+    <Color x:Key="LoginRegisterTextColor">#01579B</Color>
+
     <!-- Theme Icon -->
     <x:String x:Key="DynamicThemeIcon">🌙</x:String>
 

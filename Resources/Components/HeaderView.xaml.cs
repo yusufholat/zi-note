@@ -13,6 +13,24 @@ public partial class HeaderView : ContentView
         set => SetValue(TitleTextProperty, value);
     }
 
+    public static readonly BindableProperty ShowLogoProperty =
+        BindableProperty.Create(nameof(ShowLogo), typeof(bool), typeof(HeaderView), true);
+
+    public bool ShowLogo
+    {
+        get => (bool)GetValue(ShowLogoProperty);
+        set => SetValue(ShowLogoProperty, value);
+    }
+
+    public static readonly BindableProperty ShowProfileProperty =
+        BindableProperty.Create(nameof(ShowProfile), typeof(bool), typeof(HeaderView), true);
+
+    public bool ShowProfile
+    {
+        get => (bool)GetValue(ShowProfileProperty);
+        set => SetValue(ShowProfileProperty, value);
+    }
+
     public HeaderView()
     {
         InitializeComponent();
@@ -51,7 +69,7 @@ public partial class HeaderView : ContentView
             // Using Application.Current.MainPage is technically deprecated but workable, or traversing parents.
             // Shell.Current.CurrentPage is a better bet in Shell apps.
 
-            var page = Shell.Current?.CurrentPage ?? Application.Current?.MainPage;
+            var page = Shell.Current?.CurrentPage ?? Application.Current?.Windows.FirstOrDefault()?.Page;
             if (page == null) return;
 
             string action = await page.DisplayActionSheet($"Hi, {email}", "Cancel", null, "Logout");
@@ -59,7 +77,7 @@ public partial class HeaderView : ContentView
             if (action == "Logout")
             {
                 authService.SignOut();
-                Application.Current.MainPage = new Pages.LoginPage(authService);
+                await Shell.Current.GoToAsync("//LoginPage");
             }
         }
         catch (Exception ex)

@@ -63,6 +63,9 @@
   <data name="ExportOptions" xml:space="preserve">
     <value>Dışa Aktarma</value>
   </data>
+  <data name="ImportOptions" xml:space="preserve">
+    <value>İçe Aktarma</value>
+  </data>
   <data name="SearchPlaceholder" xml:space="preserve">
     <value>Arama terimleri...</value>
   </data>
@@ -155,5 +158,23 @@
   </data>
   <data name="EnterExample" xml:space="preserve">
     <value>Örnek girin</value>
+  </data>
+  <data name="LoginTitle" xml:space="preserve">
+    <value>Devam etmek için giriş yapın</value>
+  </data>
+  <data name="EmailPlaceholder" xml:space="preserve">
+    <value>E-posta</value>
+  </data>
+  <data name="PasswordPlaceholder" xml:space="preserve">
+    <value>Şifre</value>
+  </data>
+  <data name="LoginButton" xml:space="preserve">
+    <value>GİRİŞ YAP</value>
+  </data>
+  <data name="RegisterButton" xml:space="preserve">
+    <value>Hesap Oluştur</value>
+  </data>
+  <data name="GuestButton" xml:space="preserve">
+    <value>Misafir Olarak Devam Et</value>
   </data>
 </root>

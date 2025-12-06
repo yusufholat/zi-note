@@ -9,20 +9,7 @@ public partial class App : Application
         InitializeComponent();
         _authService = authService;
         
-        // Window/Border handlers...
-        Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("Borderless", (handler, view) =>
-        {
-#if WINDOWS
-            handler.PlatformView.BorderThickness = new Microsoft.UI.Xaml.Thickness(0);
-#endif
-        });
 
-        Microsoft.Maui.Handlers.EditorHandler.Mapper.AppendToMapping("Borderless", (handler, view) =>
-        {
-#if WINDOWS
-            handler.PlatformView.BorderThickness = new Microsoft.UI.Xaml.Thickness(0);
-#endif
-        });
     }
 
     protected override Window CreateWindow(IActivationState activationState)
@@ -45,12 +32,14 @@ public partial class App : Application
             // Add slight delay to render loading spinner if needed, or check immediately
             var isAuthenticated = await _authService.CheckLoginStatusAsync();
             
-            MainThread.BeginInvokeOnMainThread(() =>
+            MainThread.BeginInvokeOnMainThread(async () =>
             {
+                window.Page = new AppShell();
                 if (isAuthenticated)
-                    Application.Current.MainPage = new AppShell();
-                else
-                    Application.Current.MainPage = new Pages.LoginPage(_authService);
+                {
+                    await Shell.Current.GoToAsync("//HubPage");
+                }
+                // Implicitly stays on LoginPage (first item) if not authenticated
             });
         });
 

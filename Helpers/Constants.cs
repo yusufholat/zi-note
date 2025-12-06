@@ -9,5 +9,13 @@ namespace Zinote.Helpers
         // Navigation Parameters
         public const string NavItemId = "ItemId";
         public const string NavCollectionName = "CollectionName";
+
+        // Export/Import Types
+        public const string TypeBasicCsv = "Basic CSV";
+        public const string TypeBasicExcel = "Basic Excel";
+        public const string TypeMatecatCsv = "Matecat CSV";
+        public const string TypeMatecatExcel = "Matecat Excel";
+        public const string TypeSmartcatCsv = "Smartcat CSV";
+        public const string TypeSmartcatExcel = "Smartcat Excel";
     }
 }

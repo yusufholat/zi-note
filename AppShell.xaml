@@ -8,7 +8,12 @@
     Shell.FlyoutBehavior="Disabled">
 
     <ShellContent
+        ContentTemplate="{DataTemplate pages:LoginPage}"
+        Route="LoginPage"
+        Shell.FlyoutBehavior="Disabled"
+        Shell.TabBarIsVisible="False" />
+
+    <ShellContent
         ContentTemplate="{DataTemplate pages:HubPage}"
         Route="HubPage" />
-
 </Shell>

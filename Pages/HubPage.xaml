@@ -3,10 +3,10 @@
              xmlns:helpers="clr-namespace:Zinote.Helpers"
              xmlns:components="clr-namespace:Zinote.Resources.Components"
              x:Class="Zinote.Pages.HubPage"
-             BackgroundColor="{DynamicResource DynamicPageBackground}">
+             Background="{DynamicResource PageBackgroundBrush}">
 
     <Shell.TitleView>
-        <components:HeaderView TitleText="{x:Static helpers:Constants.AppName}" />
+        <components:HeaderView TitleText="{x:Static helpers:Constants.AppName}" ShowLogo="False" />
     </Shell.TitleView>
     
     <ScrollView>
