@@ -2,6 +2,8 @@ using ClosedXML.Excel;
 using Zinote.Models;
 using System.Text;
 
+using Zinote.Helpers;
+
 namespace Zinote.Services
 {
     public class ExportService
@@ -11,6 +13,27 @@ namespace Zinote.Services
         public ExportService(DataService dataService)
         {
             _dataService = dataService;
+        }
+
+        public async Task<string> ExportAsync(string collectionName, DataFormat format)
+        {
+            switch (format)
+            {
+                case DataFormat.BasicCsv:
+                    return await ExportToCsvAsync(collectionName);
+                case DataFormat.BasicExcel:
+                    return await ExportToExcelAsync(collectionName);
+                case DataFormat.MatecatCsv:
+                    return await ExportToMatecatAsync(collectionName);
+                case DataFormat.MatecatExcel:
+                    return await ExportToMatecatExcelAsync(collectionName);
+                case DataFormat.SmartcatCsv:
+                    return await ExportToSmartcatCsvAsync(collectionName);
+                case DataFormat.SmartcatExcel:
+                    return await ExportToSmartcatExcelAsync(collectionName);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(format), format, null);
+            }
         }
 
         public async Task<string> ExportToCsvAsync(string collectionName)

@@ -79,22 +79,22 @@
                     <!-- Basic -->
                     <Label Text="{helpers:Translate BasicData}" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold"/>
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Button Grid.Column="0" Text="CSV" Clicked="OnImportFormatClicked" CommandParameter="Basic CSV" BackgroundColor="{DynamicResource DynamicExportBasicBg}" TextColor="{DynamicResource DynamicExportBasicText}" BorderColor="{DynamicResource DynamicBorder}" BorderWidth="1"/>
-                        <Button Grid.Column="1" Text="Excel" Clicked="OnImportFormatClicked" CommandParameter="Basic Excel" BackgroundColor="{DynamicResource DynamicExportBasicBg}" TextColor="{DynamicResource DynamicExportBasicText}" BorderColor="{DynamicResource DynamicBorder}" BorderWidth="1"/>
+                        <Button Grid.Column="0" Text="CSV" Clicked="OnImportFormatClicked" CommandParameter="{x:Static helpers:DataFormat.BasicCsv}" BackgroundColor="{DynamicResource DynamicExportBasicBg}" TextColor="{DynamicResource DynamicExportBasicText}" BorderColor="{DynamicResource DynamicBorder}" BorderWidth="1"/>
+                        <Button Grid.Column="1" Text="Excel" Clicked="OnImportFormatClicked" CommandParameter="{x:Static helpers:DataFormat.BasicExcel}" BackgroundColor="{DynamicResource DynamicExportBasicBg}" TextColor="{DynamicResource DynamicExportBasicText}" BorderColor="{DynamicResource DynamicBorder}" BorderWidth="1"/>
                     </Grid>
 
                     <!-- Matecat -->
                     <Label Text="{helpers:Translate Matecat}" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold" Margin="0,10,0,0"/>
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Button Grid.Column="0" Text="CSV" Clicked="OnImportFormatClicked" CommandParameter="Matecat CSV" BackgroundColor="{DynamicResource DynamicExportMatecatBg}" TextColor="{DynamicResource DynamicExportMatecatText}" BorderColor="{DynamicResource DynamicExportMatecatText}" BorderWidth="1"/>
-                        <Button Grid.Column="1" Text="Excel" Clicked="OnImportFormatClicked" CommandParameter="Matecat Excel" BackgroundColor="{DynamicResource DynamicExportMatecatBg}" TextColor="{DynamicResource DynamicExportMatecatText}" BorderColor="{DynamicResource DynamicExportMatecatText}" BorderWidth="1"/>
+                        <Button Grid.Column="0" Text="CSV" Clicked="OnImportFormatClicked" CommandParameter="{x:Static helpers:DataFormat.MatecatCsv}" BackgroundColor="{DynamicResource DynamicExportMatecatBg}" TextColor="{DynamicResource DynamicExportMatecatText}" BorderColor="{DynamicResource DynamicExportMatecatText}" BorderWidth="1"/>
+                        <Button Grid.Column="1" Text="Excel" Clicked="OnImportFormatClicked" CommandParameter="{x:Static helpers:DataFormat.MatecatExcel}" BackgroundColor="{DynamicResource DynamicExportMatecatBg}" TextColor="{DynamicResource DynamicExportMatecatText}" BorderColor="{DynamicResource DynamicExportMatecatText}" BorderWidth="1"/>
                     </Grid>
 
                     <!-- Smartcat -->
                     <Label Text="{helpers:Translate Smartcat}" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold" Margin="0,10,0,0"/>
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Button Grid.Column="0" Text="CSV" Clicked="OnImportFormatClicked" CommandParameter="Smartcat CSV" BackgroundColor="{DynamicResource DynamicExportSmartcatBg}" TextColor="{DynamicResource DynamicExportSmartcatText}" BorderColor="{DynamicResource DynamicExportSmartcatText}" BorderWidth="1"/>
-                        <Button Grid.Column="1" Text="Excel" Clicked="OnImportFormatClicked" CommandParameter="Smartcat Excel" BackgroundColor="{DynamicResource DynamicExportSmartcatBg}" TextColor="{DynamicResource DynamicExportSmartcatText}" BorderColor="{DynamicResource DynamicExportSmartcatText}" BorderWidth="1"/>
+                        <Button Grid.Column="0" Text="CSV" Clicked="OnImportFormatClicked" CommandParameter="{x:Static helpers:DataFormat.SmartcatCsv}" BackgroundColor="{DynamicResource DynamicExportSmartcatBg}" TextColor="{DynamicResource DynamicExportSmartcatText}" BorderColor="{DynamicResource DynamicExportSmartcatText}" BorderWidth="1"/>
+                        <Button Grid.Column="1" Text="Excel" Clicked="OnImportFormatClicked" CommandParameter="{x:Static helpers:DataFormat.SmartcatExcel}" BackgroundColor="{DynamicResource DynamicExportSmartcatBg}" TextColor="{DynamicResource DynamicExportSmartcatText}" BorderColor="{DynamicResource DynamicExportSmartcatText}" BorderWidth="1"/>
                     </Grid>
 
                     <Button Text="{helpers:Translate Close}" Clicked="OnImportOverlayClose" BackgroundColor="{DynamicResource DynamicCloseButtonBg}" TextColor="{DynamicResource DynamicButtonText}" Margin="0,20,0,0"/>
@@ -110,22 +110,22 @@
                     <!-- Basic -->
                     <Label Text="{helpers:Translate BasicData}" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold"/>
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Button Grid.Column="0" Text="CSV" Clicked="OnExportFormatClicked" CommandParameter="Basic CSV" BackgroundColor="{DynamicResource DynamicExportBasicBg}" TextColor="{DynamicResource DynamicExportBasicText}" BorderColor="{DynamicResource DynamicBorder}" BorderWidth="1"/>
-                        <Button Grid.Column="1" Text="Excel" Clicked="OnExportFormatClicked" CommandParameter="Basic Excel" BackgroundColor="{DynamicResource DynamicExportBasicBg}" TextColor="{DynamicResource DynamicExportBasicText}" BorderColor="{DynamicResource DynamicBorder}" BorderWidth="1"/>
+                        <Button Grid.Column="0" Text="CSV" Clicked="OnExportFormatClicked" CommandParameter="{x:Static helpers:DataFormat.BasicCsv}" BackgroundColor="{DynamicResource DynamicExportBasicBg}" TextColor="{DynamicResource DynamicExportBasicText}" BorderColor="{DynamicResource DynamicBorder}" BorderWidth="1"/>
+                        <Button Grid.Column="1" Text="Excel" Clicked="OnExportFormatClicked" CommandParameter="{x:Static helpers:DataFormat.BasicExcel}" BackgroundColor="{DynamicResource DynamicExportBasicBg}" TextColor="{DynamicResource DynamicExportBasicText}" BorderColor="{DynamicResource DynamicBorder}" BorderWidth="1"/>
                     </Grid>
 
                     <!-- Matecat -->
                     <Label Text="{helpers:Translate Matecat}" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold" Margin="0,10,0,0"/>
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Button Grid.Column="0" Text="CSV" Clicked="OnExportFormatClicked" CommandParameter="Matecat CSV" BackgroundColor="{DynamicResource DynamicExportMatecatBg}" TextColor="{DynamicResource DynamicExportMatecatText}" BorderColor="{DynamicResource DynamicExportMatecatText}" BorderWidth="1"/>
-                        <Button Grid.Column="1" Text="Excel" Clicked="OnExportFormatClicked" CommandParameter="Matecat Excel" BackgroundColor="{DynamicResource DynamicExportMatecatBg}" TextColor="{DynamicResource DynamicExportMatecatText}" BorderColor="{DynamicResource DynamicExportMatecatText}" BorderWidth="1"/>
+                        <Button Grid.Column="0" Text="CSV" Clicked="OnExportFormatClicked" CommandParameter="{x:Static helpers:DataFormat.MatecatCsv}" BackgroundColor="{DynamicResource DynamicExportMatecatBg}" TextColor="{DynamicResource DynamicExportMatecatText}" BorderColor="{DynamicResource DynamicExportMatecatText}" BorderWidth="1"/>
+                        <Button Grid.Column="1" Text="Excel" Clicked="OnExportFormatClicked" CommandParameter="{x:Static helpers:DataFormat.MatecatExcel}" BackgroundColor="{DynamicResource DynamicExportMatecatBg}" TextColor="{DynamicResource DynamicExportMatecatText}" BorderColor="{DynamicResource DynamicExportMatecatText}" BorderWidth="1"/>
                     </Grid>
 
                     <!-- Smartcat -->
                     <Label Text="{helpers:Translate Smartcat}" FontSize="12" TextColor="{DynamicResource DynamicSecondaryText}" FontAttributes="Bold" Margin="0,10,0,0"/>
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Button Grid.Column="0" Text="CSV" Clicked="OnExportFormatClicked" CommandParameter="Smartcat CSV" BackgroundColor="{DynamicResource DynamicExportSmartcatBg}" TextColor="{DynamicResource DynamicExportSmartcatText}" BorderColor="{DynamicResource DynamicExportSmartcatText}" BorderWidth="1"/>
-                        <Button Grid.Column="1" Text="Excel" Clicked="OnExportFormatClicked" CommandParameter="Smartcat Excel" BackgroundColor="{DynamicResource DynamicExportSmartcatBg}" TextColor="{DynamicResource DynamicExportSmartcatText}" BorderColor="{DynamicResource DynamicExportSmartcatText}" BorderWidth="1"/>
+                        <Button Grid.Column="0" Text="CSV" Clicked="OnExportFormatClicked" CommandParameter="{x:Static helpers:DataFormat.SmartcatCsv}" BackgroundColor="{DynamicResource DynamicExportSmartcatBg}" TextColor="{DynamicResource DynamicExportSmartcatText}" BorderColor="{DynamicResource DynamicExportSmartcatText}" BorderWidth="1"/>
+                        <Button Grid.Column="1" Text="Excel" Clicked="OnExportFormatClicked" CommandParameter="{x:Static helpers:DataFormat.SmartcatExcel}" BackgroundColor="{DynamicResource DynamicExportSmartcatBg}" TextColor="{DynamicResource DynamicExportSmartcatText}" BorderColor="{DynamicResource DynamicExportSmartcatText}" BorderWidth="1"/>
                     </Grid>
 
                     <Button Text="{helpers:Translate Close}" Clicked="OnExportOverlayClose" BackgroundColor="{DynamicResource DynamicCloseButtonBg}" TextColor="{DynamicResource DynamicButtonText}" Margin="0,20,0,0"/>

@@ -234,34 +234,13 @@ public partial class DictionaryListPage : ContentPage
 
     private async void OnExportFormatClicked(object sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is string action)
+        if (sender is Button button && button.CommandParameter is DataFormat action)
         {
             ExportOverlay.IsVisible = false;
 
             try
             {
-                string filePath = "";
-                switch (action)
-                {
-                    case Constants.TypeBasicCsv:
-                        filePath = await _exportService.ExportToCsvAsync(_collectionName);
-                        break;
-                    case Constants.TypeBasicExcel:
-                        filePath = await _exportService.ExportToExcelAsync(_collectionName);
-                        break;
-                    case Constants.TypeMatecatCsv:
-                        filePath = await _exportService.ExportToMatecatAsync(_collectionName);
-                        break;
-                    case Constants.TypeMatecatExcel:
-                        filePath = await _exportService.ExportToMatecatExcelAsync(_collectionName);
-                        break;
-                    case Constants.TypeSmartcatCsv:
-                        filePath = await _exportService.ExportToSmartcatCsvAsync(_collectionName);
-                        break;
-                    case Constants.TypeSmartcatExcel:
-                        filePath = await _exportService.ExportToSmartcatExcelAsync(_collectionName);
-                        break;
-                }
+                string filePath = await _exportService.ExportAsync(_collectionName, action);
 
                 if (!string.IsNullOrEmpty(filePath))
                 {
@@ -287,7 +266,7 @@ public partial class DictionaryListPage : ContentPage
 
     private async void OnImportFormatClicked(object sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is string importType)
+        if (sender is Button button && button.CommandParameter is DataFormat importType)
         {
             ImportOverlay.IsVisible = false;
 
@@ -302,19 +281,22 @@ public partial class DictionaryListPage : ContentPage
                         { DevicePlatform.MacCatalyst, new[] { "public.comma-separated-values-text" } }
                     });
 
+                bool isExcel = importType == DataFormat.BasicExcel || importType == DataFormat.MatecatExcel || importType == DataFormat.SmartcatExcel;
+                bool isCsv = !isExcel; 
+
                 var options = new PickOptions
                 {
                     PickerTitle = "Select backup file",
-                    FileTypes = importType.Contains("Excel") ? FilePickerFileType.Images : customFileType // Images is wrong, need Xlsx or all
+                    FileTypes = isExcel ? FilePickerFileType.Images : customFileType // Images is wrong, need Xlsx or all
                 };
                 
                 // Fix FileTypes for Excel
-                if (importType.Contains("Excel"))
+                if (isExcel)
                 {
                       options.FileTypes = new FilePickerFileType(
                         new Dictionary<DevicePlatform, IEnumerable<string>>
                         {
-                            { DevicePlatform.iOS, new[] { "com.microsoft.excel.xls" } }, // Uniform Type Identifiers
+                            { DevicePlatform.iOS, new[] { "com.microsoft.excel.xls" } }, 
                             { DevicePlatform.Android, new[] { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" } },
                             { DevicePlatform.WinUI, new[] { ".xlsx" } },
                             { DevicePlatform.MacCatalyst, new[] { "com.microsoft.excel.xls" } } 
@@ -327,11 +309,11 @@ public partial class DictionaryListPage : ContentPage
                     using var stream = await result.OpenReadAsync();
                     List<DictionaryItem> items = new List<DictionaryItem>();
 
-                    if (importType.Contains("CSV"))
+                    if (isCsv)
                     {
                         items = _importService.ImportFromCsv(stream, importType);
                     }
-                    else if (importType.Contains("Excel"))
+                    else if (isExcel)
                     {
                         items = _importService.ImportFromExcel(stream, importType);
                     }

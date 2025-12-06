@@ -8,7 +8,7 @@ namespace Zinote.Services
 {
     public class ImportService
     {
-        public List<DictionaryItem> ImportFromCsv(Stream stream, string importType)
+        public List<DictionaryItem> ImportFromCsv(Stream stream, DataFormat importType)
         {
             var items = new List<DictionaryItem>();
             using (var reader = new StreamReader(stream))
@@ -24,7 +24,7 @@ namespace Zinote.Services
                     var parts = ParseCsvLine(line);
                     var item = new DictionaryItem();
 
-                    if (importType == Constants.TypeBasicCsv)
+                    if (importType == DataFormat.BasicCsv)
                     {
                         if (parts.Count >= 3)
                         {
@@ -33,7 +33,7 @@ namespace Zinote.Services
                             item.Definition = parts[2];
                         }
                     }
-                    else if (importType == Constants.TypeMatecatCsv)
+                    else if (importType == DataFormat.MatecatCsv)
                     {
                         // Forbidden,Domain,Subdomain,Definition,en-US,Notes,ExampleOfUse,tr-TR
                         if (parts.Count >= 8)
@@ -48,7 +48,7 @@ namespace Zinote.Services
                             item.TargetTerm = parts[7]; // tr-TR
                         }
                     }
-                    else if (importType == Constants.TypeSmartcatCsv)
+                    else if (importType == DataFormat.SmartcatCsv)
                     {
                         // Example,Do not translate,CreationDate,Author,LastModifiedDate,LastModifiedBy,en Term1,tr Term1
                          if (parts.Count >= 8)
@@ -70,7 +70,7 @@ namespace Zinote.Services
             return items;
         }
 
-        public List<DictionaryItem> ImportFromExcel(Stream stream, string importType)
+        public List<DictionaryItem> ImportFromExcel(Stream stream, DataFormat importType)
         {
              var items = new List<DictionaryItem>();
              using (var workbook = new XLWorkbook(stream))
@@ -84,14 +84,14 @@ namespace Zinote.Services
                  {
                      var item = new DictionaryItem();
                      
-                     if (importType == Constants.TypeBasicExcel)
+                     if (importType == DataFormat.BasicExcel)
                      {
                          // 1:Source, 2:Target, 3:Definition
                          item.SourceTerm = row.Cell(1).GetValue<string>();
                          item.TargetTerm = row.Cell(2).GetValue<string>();
                          item.Definition = row.Cell(3).GetValue<string>();
                      }
-                      else if (importType == Constants.TypeMatecatExcel)
+                      else if (importType == DataFormat.MatecatExcel)
                      {
                          // 1:Forbidden, 2:Domain, 3:Subdomain, 4:Def, 5:en-US, 6:Notes, 7:Ex, 8:tr-TR
                          item.Forbidden = row.Cell(1).GetValue<string>().ToLower() == "true";
@@ -103,7 +103,7 @@ namespace Zinote.Services
                          item.ExampleOfUse = row.Cell(7).GetValue<string>();
                          item.TargetTerm = row.Cell(8).GetValue<string>();
                      }
-                     else if (importType == Constants.TypeSmartcatExcel)
+                     else if (importType == DataFormat.SmartcatExcel)
                      {
                          // 1:Ex, 2:Forbidden, ... 7:en, 8:tr
                          item.ExampleOfUse = row.Cell(1).GetValue<string>();
@@ -121,20 +121,20 @@ namespace Zinote.Services
              return items;
         }
 
-        private void ValidateCsvHeader(string headerLine, string importType)
+        private void ValidateCsvHeader(string headerLine, DataFormat importType)
         {
             if (string.IsNullOrWhiteSpace(headerLine)) throw new InvalidDataException("CSV file is empty or missing headers.");
 
             string expected = string.Empty;
             switch(importType)
             {
-                case Constants.TypeBasicCsv:
+                case DataFormat.BasicCsv:
                     expected = "SourceTerm,TargetTerm,Definition";
                     break;
-                case Constants.TypeMatecatCsv:
+                case DataFormat.MatecatCsv:
                     expected = "Forbidden,Domain,Subdomain,Definition,en-US,Notes,ExampleOfUse,tr-TR";
                     break;
-                case Constants.TypeSmartcatCsv:
+                case DataFormat.SmartcatCsv:
                     expected = "Example,Do not translate,CreationDate,Author,LastModifiedDate,LastModifiedBy,en Term1,tr Term1";
                     break;
             }
@@ -145,7 +145,7 @@ namespace Zinote.Services
             }
         }
 
-        private void ValidateExcelHeader(IXLWorksheet worksheet, string importType)
+        private void ValidateExcelHeader(IXLWorksheet worksheet, DataFormat importType)
         {
             var headerRow = worksheet.Row(1);
             if (headerRow.IsEmpty()) throw new InvalidDataException("Excel file is missing headers.");
@@ -154,16 +154,17 @@ namespace Zinote.Services
 
             switch (importType)
             {
-                case Constants.TypeBasicExcel:
+                case DataFormat.BasicExcel:
                     expectedHeaders = new[] { "Source Term", "Target Term", "Definition" };
                     break;
-                case Constants.TypeMatecatExcel:
+                case DataFormat.MatecatExcel:
                     expectedHeaders = new[] { "Forbidden", "Domain", "Subdomain", "Definition", "en-US", "Notes", "ExampleOfUse", "tr-TR" };
                     break;
-                case Constants.TypeSmartcatExcel:
+                case DataFormat.SmartcatExcel:
                     expectedHeaders = new[] { "Example", "Do not translate", "CreationDate", "Author", "LastModifiedDate", "LastModifiedBy", "en Term1", "tr Term1" };
                     break;
             }
+
 
             if (expectedHeaders != null)
             {
