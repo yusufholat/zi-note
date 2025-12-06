@@ -22,7 +22,22 @@ namespace Zinote.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [FirestoreProperty]
+        public string CreatedBy { get; set; }
+
+        [FirestoreProperty]
         public DateTime ModifiedAt { get; set; } = DateTime.UtcNow;
+
+        [FirestoreProperty]
+        public string ModifiedBy { get; set; }
+
+        [FirestoreProperty]
+        public bool IsDeleted { get; set; } = false;
+
+        [FirestoreProperty]
+        public DateTime? DeletedAt { get; set; }
+
+        [FirestoreProperty]
+        public string DeletedBy { get; set; }
 
         [FirestoreProperty]
         public string Domain { get; set; }

@@ -13,6 +13,7 @@ public partial class DictionaryListPage : ContentPage
 {
     private readonly DataService _dataService;
     private readonly ExportService _exportService;
+    private readonly AuthService _authService;
     private string _collectionName = string.Empty; // Initialized empty, set via navigation
     private CancellationTokenSource _debounceCts;
 
@@ -31,11 +32,12 @@ public partial class DictionaryListPage : ContentPage
         }
     }
 
-    public DictionaryListPage(DataService dataService, ExportService exportService)
+    public DictionaryListPage(DataService dataService, ExportService exportService, AuthService authService)
     {
         InitializeComponent();
         _dataService = dataService;
         _exportService = exportService;
+        _authService = authService;
         BindingContext = this;
         
         LocalizationResourceManager.Instance.PropertyChanged += (sender, e) =>
@@ -55,6 +57,17 @@ public partial class DictionaryListPage : ContentPage
         base.OnAppearing();
         await _dataService.InitializeAsync();
         await LoadDataAsync();
+        
+        // Hide Buttons for Guest
+        bool isGuest = _authService.CurrentUser?.IsGuest ?? false;
+        if (isGuest)
+        {
+            if (AddButton != null) AddButton.IsVisible = false;
+            // Keeping Export visible for guests? Requirement said "Restrict DataService/UI for Guest (Read-Only)".
+            // Read-Only implies viewing. Exporting is viewing in a file. So maybe allow export?
+            // "data modification features" vs "view". Export is safe. Add/Delete is not.
+            // But let's verify if user wants export restrictions. Assuming safe for now.
+        }
     }
 
     private async Task LoadDataAsync()
@@ -85,6 +98,11 @@ public partial class DictionaryListPage : ContentPage
 
     private async void OnAddClicked(object sender, EventArgs e)
     {
+        if (_authService.CurrentUser?.IsGuest ?? false) 
+        {
+            await DisplayAlert("Restricted", "Guests cannot add items.", "OK");
+            return; 
+        }
         await Shell.Current.GoToAsync($"{nameof(Pages.ItemDetailPage)}?{Constants.NavCollectionName}={_collectionName}");
     }
 
@@ -102,6 +120,12 @@ public partial class DictionaryListPage : ContentPage
 
     private async void OnDeleteClicked(object sender, EventArgs e)
     {
+        if (_authService.CurrentUser?.IsGuest ?? false)
+        {
+            await DisplayAlert("Restricted", "Guests cannot delete items.", "OK");
+            return;
+        }
+
         if (sender is Button button && button.CommandParameter is string id)
         {
             bool answer = await DisplayAlert(

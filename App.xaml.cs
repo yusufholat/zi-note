@@ -2,10 +2,14 @@
 
 public partial class App : Application
 {
-	public App()
-	{
-		InitializeComponent();
+    private readonly Services.AuthService _authService;
 
+    public App(Services.AuthService authService)
+    {
+        InitializeComponent();
+        _authService = authService;
+        
+        // Window/Border handlers...
         Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("Borderless", (handler, view) =>
         {
 #if WINDOWS
@@ -19,11 +23,36 @@ public partial class App : Application
             handler.PlatformView.BorderThickness = new Microsoft.UI.Xaml.Thickness(0);
 #endif
         });
-	}
+    }
 
     protected override Window CreateWindow(IActivationState activationState)
     {
-        var window = new Window(new AppShell());
+        // Initial Loading State
+        var window = new Window(new ContentPage 
+        { 
+            Content = new ActivityIndicator 
+            { 
+                IsRunning = true, 
+                VerticalOptions = LayoutOptions.Center, 
+                HorizontalOptions = LayoutOptions.Center,
+                Color = Colors.Blue
+            } 
+        });
+
+        // Fire and forget, but safely update UI on MainThread
+        Task.Run(async () => 
+        {
+            // Add slight delay to render loading spinner if needed, or check immediately
+            var isAuthenticated = await _authService.CheckLoginStatusAsync();
+            
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (isAuthenticated)
+                    Application.Current.MainPage = new AppShell();
+                else
+                    Application.Current.MainPage = new Pages.LoginPage(_authService);
+            });
+        });
 
         const int newWidth = 500;
         const int newHeight = 700;

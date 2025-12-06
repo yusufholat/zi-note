@@ -33,6 +33,23 @@
 - **Firebase Firestore**: Real-time cloud database for instant synchronization across devices.
 - **Secure Configuration**: Credential-based access management.
 
+## 🔐 Authentication
+The application uses **Firebase Authentication** (Email/Password) to secure access.
+- Users must login before accessing the Hub.
+- User session is persisted securely.
+- "CreatedBy", "ModifiedBy", and "DeletedBy" fields are tracked for audit purposes.
+- **Guest Access**: Option to "Continue as Guest" for read-only access without account creation.
+
+## 🎨 Modern UI & UX
+- **Redesigned Login Page**: Features a modern dark gradient background, glassmorphism card, and smooth animations.
+- **Unified Header**: Consistent navigation bar with left-aligned branding and global profile access across all pages.
+
+## 🗑️ Soft Delete
+To prevent data loss, delete operations now perform a **Soft Delete**:
+- Items are marked as `IsDeleted = true`.
+- They are filtered out from the main list but remain in the database.
+- Audit fields `DeletedAt` and `DeletedBy` are populated.
+
 ## Technology Stack
 
 - **.NET MAUI 9.0**: Cross-platform framework (Windows, Android, iOS, macOS).

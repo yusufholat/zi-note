@@ -32,6 +32,42 @@ public partial class HeaderView : ContentView
         ThemeHelper.ToggleTheme();
     }
 
+    private async void OnProfileClicked(object sender, EventArgs e)
+    {
+        try 
+        {
+            var authService = Handler?.MauiContext?.Services.GetService<Services.AuthService>();
+            if (authService == null) return;
+
+            if (authService.CurrentUser == null)
+            {
+                await authService.CheckLoginStatusAsync();
+            }
+
+            var email = authService.CurrentUser?.Email ?? "User";
+            
+            // Should verify if we can display alerts from ContentView. 
+            // We usually need a Page reference for DisplayActionSheet.
+            // Using Application.Current.MainPage is technically deprecated but workable, or traversing parents.
+            // Shell.Current.CurrentPage is a better bet in Shell apps.
+
+            var page = Shell.Current?.CurrentPage ?? Application.Current?.MainPage;
+            if (page == null) return;
+
+            string action = await page.DisplayActionSheet($"Hi, {email}", "Cancel", null, "Logout");
+
+            if (action == "Logout")
+            {
+                authService.SignOut();
+                Application.Current.MainPage = new Pages.LoginPage(authService);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Profile error: {ex.Message}");
+        }
+    }
+
     private void UpdateLanguageLabel()
     {
         if (LanguageLabel != null)

@@ -7,15 +7,18 @@
              x:DataType="local:HeaderView"
              x:Name="ThisHeader">
 
-    <Grid Margin="0,0,10,0">
-        <Label Text="{Binding TitleText, Source={x:Reference ThisHeader}}" 
-               FontSize="20" 
-               FontAttributes="Bold" 
-               VerticalOptions="Center" 
-               HorizontalOptions="Center" 
-               TextColor="{DynamicResource DynamicShellTitleColor}"/>
+    <Grid Margin="0,0,0,0" ColumnDefinitions="*, Auto" VerticalOptions="Fill">
         
-        <HorizontalStackLayout HorizontalOptions="End" Spacing="8" VerticalOptions="Center">
+        <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center" HorizontalOptions="Start" Margin="15,0,0,0">
+            <Image Source="appicon_logo.svg" HeightRequest="24" WidthRequest="24" VerticalOptions="Center" />
+            <Label Text="{Binding TitleText, Source={x:Reference ThisHeader}}" 
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   VerticalOptions="Center" 
+                   TextColor="{DynamicResource DynamicShellTitleColor}"/>
+        </HorizontalStackLayout>
+        
+        <HorizontalStackLayout Grid.Column="1" HorizontalOptions="End" Spacing="8" VerticalOptions="Center">
             <!-- Language Button -->
             <Border StrokeShape="RoundRectangle 8" BackgroundColor="{DynamicResource DynamicHeaderButtonBg}" 
                     StrokeThickness="0" Padding="8,4" WidthRequest="45" HeightRequest="32">
@@ -38,6 +41,19 @@
                     <TapGestureRecognizer Tapped="OnThemeClicked"/>
                 </Border.GestureRecognizers>
                 <Label Text="{DynamicResource DynamicThemeIcon}" 
+                       FontSize="16" 
+                       VerticalOptions="Center" 
+                       HorizontalOptions="Center"
+                       TextColor="{DynamicResource DynamicShellTitleColor}"/>
+            </Border>
+
+            <!-- Profile Button -->
+            <Border StrokeShape="RoundRectangle 8" BackgroundColor="{DynamicResource DynamicHeaderButtonBg}" 
+                    StrokeThickness="0" Padding="8,4" WidthRequest="45" HeightRequest="32">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnProfileClicked"/>
+                </Border.GestureRecognizers>
+                <Label Text="👤" 
                        FontSize="16" 
                        VerticalOptions="Center" 
                        HorizontalOptions="Center"

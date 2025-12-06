@@ -5,11 +5,13 @@ namespace Zinote.Pages;
 public partial class HubPage : ContentPage
 {
     private readonly DataService _dataService;
+    private readonly AuthService _authService;
 
-    public HubPage(DataService dataService)
+    public HubPage(DataService dataService, AuthService authService)
     {
         InitializeComponent();
         _dataService = dataService;
+        _authService = authService;
     }
 
     protected override async void OnAppearing()
@@ -31,4 +33,5 @@ public partial class HubPage : ContentPage
             }
         }
     }
+
 }

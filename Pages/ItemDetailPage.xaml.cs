@@ -86,10 +86,47 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
         {
             await DisplayAlert("Error", $"Failed to load item: {ex.Message}", "OK");
         }
+        
+        // Check Guest Mode to hide buttons
+        var authService = Handler.MauiContext.Services.GetService<AuthService>();
+        bool isGuest = authService?.CurrentUser?.IsGuest ?? false;
+        if (isGuest)
+        {
+             Dispatcher.Dispatch(() => 
+             {
+                 // Assuming buttons are ID'd or we handle visibility differently.
+                 // Since I didn't add IDs to buttons in XAML, I should probably do that or use FindByName if possible.
+                 // OR simplest: just disable the Save functionality (handled above) 
+                 // and maybe disable inputs? 
+                 // Let's Disable Inputs for better UX
+                 DisableInputs();
+             });
+        }
+    }
+
+    private void DisableInputs()
+    {
+        SourceTermEntry.IsReadOnly = true;
+        TargetTermEntry.IsReadOnly = true;
+        DefinitionEntry.IsReadOnly = true;
+        DomainEntry.IsReadOnly = true;
+        SubDomainEntry.IsReadOnly = true;
+        NotesEntry.IsReadOnly = true;
+        ExampleEntry.IsReadOnly = true;
+        ForbiddenSwitch.IsEnabled = false;
+        if (SaveButton != null) SaveButton.IsVisible = false;
     }
 
     private async void OnSaveClicked(object sender, EventArgs e)
     {
+        // Permission Check
+        var authService = Handler.MauiContext.Services.GetService<AuthService>();
+        if (authService != null && (authService.CurrentUser?.IsGuest ?? false))
+        {
+            await DisplayAlert("Restricted", "Guest users cannot modify data.", "OK");
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(SourceTermEntry.Text))
         {
             await DisplayAlert("Error", "Source Term is required", "OK");
@@ -133,33 +170,6 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"Failed to save item: {ex.Message}", "OK");
-        }
-    }
-
-    private void OnThemeClicked(object sender, EventArgs e)
-    {
-        Helpers.ThemeHelper.ToggleTheme();
-    }
-    
-    private void OnLanguageClicked(object sender, EventArgs e)
-    {
-        var current = LocalizationResourceManager.Instance.CurrentCulture;
-        var newCulture = current.Name.StartsWith("tr") ? new System.Globalization.CultureInfo("en") : new System.Globalization.CultureInfo("tr");
-        LocalizationResourceManager.Instance.SetCulture(newCulture);
-        UpdateLanguageLabel();
-    }
-    
-    private void UpdateLanguageLabel()
-    {
-        if (LanguageLabel != null)
-        {
-            LanguageLabel.Text = LocalizationResourceManager.Instance.CurrentCulture.TwoLetterISOLanguageName.ToUpper();
-        }
-        
-        // Also update Forbidden label if state exists
-         if (ForbiddenStateLabel != null && ForbiddenSwitch != null)
-        {
-             ForbiddenStateLabel.Text = ForbiddenSwitch.IsToggled ? LocalizationResourceManager.Instance["Yes"] : LocalizationResourceManager.Instance["No"];
         }
     }
 

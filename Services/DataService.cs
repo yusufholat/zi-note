@@ -14,9 +14,11 @@ namespace Zinote.Services
     public class DataService
     {
         private FirestoreDb _firestoreDb;
+        private readonly AuthService _authService;
 
-        public DataService()
+        public DataService(AuthService authService)
         {
+            _authService = authService;
         }
 
         public async Task InitializeAsync()
@@ -79,6 +81,8 @@ namespace Zinote.Services
             if (_firestoreDb == null) return new List<DictionaryItem>();
 
             var collection = _firestoreDb.Collection(collectionName);
+            // Changed to client-side filtering to support legacy documents where "IsDeleted" field is missing.
+            // Server-side WhereEqualTo("IsDeleted", false) excludes missing fields.
             var snapshot = await collection.GetSnapshotAsync();
             
             var items = new List<DictionaryItem>();
@@ -87,8 +91,13 @@ namespace Zinote.Services
                 if (document.Exists)
                 {
                     var item = document.ConvertTo<DictionaryItem>();
-                    item.Id = document.Id; 
-                    items.Add(item);
+                    item.Id = document.Id;
+                    
+                    // Filter out soft-deleted items (treat null as false)
+                    if (!item.IsDeleted)
+                    {
+                        items.Add(item);
+                    }
                 }
             }
             return items;
@@ -114,6 +123,13 @@ namespace Zinote.Services
         {
             if (_firestoreDb == null) return;
 
+            // Audit
+            item.CreatedAt = DateTime.UtcNow;
+            item.CreatedBy = _authService.CurrentUser?.Email ?? "Unknown";
+            item.ModifiedAt = DateTime.UtcNow;
+            item.ModifiedBy = item.CreatedBy;
+            item.IsDeleted = false;
+
             var collection = _firestoreDb.Collection(collectionName);
             var docRef = collection.Document(item.Id);
             await docRef.SetAsync(item);
@@ -123,6 +139,10 @@ namespace Zinote.Services
         {
             if (_firestoreDb == null) return;
 
+            // Audit
+            item.ModifiedAt = DateTime.UtcNow;
+            item.ModifiedBy = _authService.CurrentUser?.Email ?? "Unknown";
+
             var docRef = _firestoreDb.Collection(collectionName).Document(item.Id);
             await docRef.SetAsync(item, SetOptions.Overwrite);
         }
@@ -131,13 +151,20 @@ namespace Zinote.Services
         {
             if (_firestoreDb == null) return;
 
+            // Soft Delete
             var docRef = _firestoreDb.Collection(collectionName).Document(id);
-            await docRef.DeleteAsync();
+            var updates = new Dictionary<string, object>
+            {
+                { "IsDeleted", true },
+                { "DeletedAt", DateTime.UtcNow },
+                { "DeletedBy", _authService.CurrentUser?.Email ?? "Unknown" }
+            };
+            await docRef.UpdateAsync(updates);
         }
 
         public async Task<List<DictionaryItem>> SearchAsync(string collectionName, string query)
         {
-            var allItems = await GetAllAsync(collectionName);
+            var allItems = await GetAllAsync(collectionName); // This already filters IsDeleted=false (client-side)
 
             if (string.IsNullOrWhiteSpace(query))
                 return allItems;
