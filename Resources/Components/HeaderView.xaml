@@ -2,7 +2,9 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:helpers="clr-namespace:Zinote.Helpers"
+             xmlns:local="clr-namespace:Zinote.Resources.Components"
              x:Class="Zinote.Resources.Components.HeaderView"
+             x:DataType="local:HeaderView"
              x:Name="ThisHeader">
 
     <Grid Margin="0,0,10,0">
@@ -16,7 +18,7 @@
         <HorizontalStackLayout HorizontalOptions="End" Spacing="8" VerticalOptions="Center">
             <!-- Language Button -->
             <Border StrokeShape="RoundRectangle 8" BackgroundColor="{DynamicResource DynamicHeaderButtonBg}" 
-                    StrokeThickness="0" Padding="8,4">
+                    StrokeThickness="0" Padding="8,4" WidthRequest="45" HeightRequest="32">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnLanguageClicked"/>
                 </Border.GestureRecognizers>
@@ -25,18 +27,20 @@
                        FontSize="14" 
                        FontAttributes="Bold"
                        VerticalOptions="Center" 
+                       HorizontalOptions="Center"
                        TextColor="{DynamicResource DynamicShellTitleColor}"/>
             </Border>
 
             <!-- Theme Button -->
             <Border StrokeShape="RoundRectangle 8" BackgroundColor="{DynamicResource DynamicHeaderButtonBg}" 
-                    StrokeThickness="0" Padding="8,4">
+                    StrokeThickness="0" Padding="8,4" WidthRequest="45" HeightRequest="32">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnThemeClicked"/>
                 </Border.GestureRecognizers>
                 <Label Text="{DynamicResource DynamicThemeIcon}" 
                        FontSize="16" 
                        VerticalOptions="Center" 
+                       HorizontalOptions="Center"
                        TextColor="{DynamicResource DynamicShellTitleColor}"/>
             </Border>
         </HorizontalStackLayout>

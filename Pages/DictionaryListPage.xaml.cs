@@ -103,7 +103,7 @@ public partial class DictionaryListPage : ContentPage
         if (sender is Button button && button.CommandParameter is string id)
         {
             bool answer = await DisplayAlert(
-                LocalizationResourceManager.Instance["AppName"], 
+                Constants.AppName, 
                 "Are you sure you want to delete this item?", 
                 LocalizationResourceManager.Instance["Yes"], 
                 LocalizationResourceManager.Instance["No"]);
@@ -166,7 +166,7 @@ public partial class DictionaryListPage : ContentPage
 
                 if (!string.IsNullOrEmpty(filePath))
                 {
-                    await DisplayAlert(LocalizationResourceManager.Instance["AppName"], $"Data exported to:\n{filePath}", "OK");
+                    await DisplayAlert(Constants.AppName, $"Data exported to:\n{filePath}", "OK");
                 }
             }
             catch (Exception ex)

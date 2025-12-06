@@ -6,7 +6,7 @@
              BackgroundColor="{DynamicResource DynamicPageBackground}">
 
     <Shell.TitleView>
-        <components:HeaderView TitleText="{helpers:Translate AppName}" />
+        <components:HeaderView TitleText="{x:Static helpers:Constants.AppName}" />
     </Shell.TitleView>
     
     <ScrollView>
