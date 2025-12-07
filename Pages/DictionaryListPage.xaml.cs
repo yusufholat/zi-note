@@ -67,6 +67,10 @@ public partial class DictionaryListPage : ContentPage
     {
         base.OnAppearing();
         await _dataService.InitializeAsync();
+
+        // Apply Configuration
+        if (ImportButton != null) ImportButton.IsVisible = Constants.EnableImport;
+        if (ExportButton != null) ExportButton.IsVisible = Constants.EnableExport;
         
         // Only load if empty or if needed. 
         // If we want a fresh reload every time we appear (e.g. after adding item), we can clear and load.

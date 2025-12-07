@@ -5,13 +5,14 @@ namespace Zinote.Helpers
         public const string CredentialsFileName = "firebase-credentials.json";
         public const string AppName = "zi-lex";
 
-        
         // Navigation Parameters
         public const string NavItemId = "ItemId";
         public const string NavCollectionName = "CollectionName";
 
         // Configuration
-        public static bool UseFirebase = false;
+        public static bool UseFirebase = true;
+        public static bool EnableImport = true;
+        public static bool EnableExport = true;
     }
 
     // Export/Import Types
