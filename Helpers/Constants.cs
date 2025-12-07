@@ -7,6 +7,7 @@ namespace Zinote.Helpers
         // Navigation Parameters
         public const string NavItemId = "ItemId";
         public const string NavCollectionName = "CollectionName";
+        public const string MsgUpdateItem = "UpdateItem";
 
         // Configuration
         // Moved to AppSettings (appsettings.json)

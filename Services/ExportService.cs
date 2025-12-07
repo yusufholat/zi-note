@@ -102,7 +102,7 @@ namespace Zinote.Services
                 int row = 2;
                 foreach (var item in items)
                 {
-                    worksheet.Cell(row, 1).Value = item.Forbidden ? "true" : "";
+                    worksheet.Cell(row, 1).Value = item.Forbidden ? "true" : "false";
                     worksheet.Cell(row, 2).Value = item.Domain;
                     worksheet.Cell(row, 3).Value = item.SubDomain;
                     worksheet.Cell(row, 4).Value = item.Definition;
@@ -162,7 +162,7 @@ namespace Zinote.Services
                 foreach (var item in items)
                 {
                     worksheet.Cell(row, 1).Value = item.ExampleOfUse;
-                    worksheet.Cell(row, 2).Value = item.Forbidden ? "true" : "";
+                    worksheet.Cell(row, 2).Value = item.Forbidden ? "true" : "false";
                     worksheet.Cell(row, 3).Value = item.CreatedAt;
                     worksheet.Cell(row, 4).Value = ""; // Author
                     worksheet.Cell(row, 5).Value = item.ModifiedAt;

@@ -20,6 +20,15 @@ namespace Zinote.Services
         // In-Memory Store: CollectionName -> List<DictionaryItem>
         private Dictionary<string, List<DictionaryItem>> _memoryStore = new Dictionary<string, List<DictionaryItem>>();
 
+        // Cache for Firestore items: CollectionName -> (ItemId -> DictionaryItem)
+        private Dictionary<string, Dictionary<string, DictionaryItem>> _itemCache = new Dictionary<string, Dictionary<string, DictionaryItem>>();
+
+        // Track fully loaded collections
+        private HashSet<string> _fullyLoadedCollections = new HashSet<string>();
+
+        // Lock for thread safety
+        private readonly object _cacheLock = new object();
+
         public DataService(AuthService authService, AppSettings settings)
         {
             _authService = authService;
@@ -32,6 +41,7 @@ namespace Zinote.Services
         public async Task InitializeAsync()
         {
             if (!_settings.Integration.UseFirebase) return;
+            if (_firestoreDb != null) return; // Optimization: Skip if already initialized
 
             try
             {
@@ -88,15 +98,167 @@ namespace Zinote.Services
 
         private List<DictionaryItem> GetMemoryCollection(string collectionName)
         {
-            if (!_memoryStore.ContainsKey(collectionName))
+            lock (_cacheLock)
             {
-                _memoryStore[collectionName] = new List<DictionaryItem>();
+                if (!_memoryStore.ContainsKey(collectionName))
+                {
+                    _memoryStore[collectionName] = new List<DictionaryItem>();
+                }
+                return _memoryStore[collectionName];
             }
-            return _memoryStore[collectionName];
+        }
+
+        private void CacheItem(string collectionName, DictionaryItem item)
+        {
+            if (item == null || string.IsNullOrEmpty(item.Id)) return;
+
+            lock (_cacheLock)
+            {
+                if (!_itemCache.ContainsKey(collectionName))
+                {
+                    _itemCache[collectionName] = new Dictionary<string, DictionaryItem>();
+                }
+                _itemCache[collectionName][item.Id] = item;
+            }
+        }
+
+        private DictionaryItem GetCachedItem(string collectionName, string id)
+        {
+            lock (_cacheLock)
+            {
+                if (_itemCache.ContainsKey(collectionName) && _itemCache[collectionName].TryGetValue(id, out var item))
+                {
+                    return item;
+                }
+            }
+            return null;
+        }
+
+        private void RemoveCachedItem(string collectionName, string id)
+        {
+            lock (_cacheLock)
+            {
+                if (_itemCache.ContainsKey(collectionName))
+                {
+                    _itemCache[collectionName].Remove(id);
+                }
+            }
+        }
+
+        private void UpdateCachedItem(string collectionName, DictionaryItem freshItem)
+        {
+            lock (_cacheLock)
+            {
+                 if (!_itemCache.ContainsKey(collectionName))
+                {
+                    _itemCache[collectionName] = new Dictionary<string, DictionaryItem>();
+                }
+                
+                if (_itemCache[collectionName].TryGetValue(freshItem.Id, out var existing))
+                {
+                    // Update properties of existing instance to preserve references
+                    existing.SourceTerm = freshItem.SourceTerm;
+                    existing.TargetTerm = freshItem.TargetTerm;
+                    existing.Definition = freshItem.Definition;
+                    existing.Domain = freshItem.Domain;
+                    existing.SubDomain = freshItem.SubDomain;
+                    existing.Notes = freshItem.Notes;
+                    existing.ExampleOfUse = freshItem.ExampleOfUse;
+                    existing.Forbidden = freshItem.Forbidden;
+                    existing.ModifiedAt = freshItem.ModifiedAt;
+                    existing.ModifiedBy = freshItem.ModifiedBy;
+                    existing.CreatedAt = freshItem.CreatedAt;
+                    existing.CreatedBy = freshItem.CreatedBy;
+                    existing.IsDeleted = freshItem.IsDeleted;
+                    existing.DeletedAt = freshItem.DeletedAt;
+                    existing.DeletedBy = freshItem.DeletedBy;
+                }
+                else
+                {
+                    _itemCache[collectionName][freshItem.Id] = freshItem;
+                }
+            }
+        }
+
+        private void MarkCachedItemDeleted(string collectionName, string id)
+        {
+            lock (_cacheLock)
+            {
+                if (_itemCache.ContainsKey(collectionName) && _itemCache[collectionName].TryGetValue(id, out var item))
+                {
+                    item.IsDeleted = true;
+                    item.DeletedAt = DateTime.UtcNow;
+                    item.DeletedBy = _authService.CurrentUser?.Email ?? "Unknown";
+                }
+            }
+        }
+
+        private void CacheItemsBatch(string collectionName, IEnumerable<DictionaryItem> items)
+        {
+             lock (_cacheLock)
+            {
+                if (!_itemCache.ContainsKey(collectionName))
+                {
+                    _itemCache[collectionName] = new Dictionary<string, DictionaryItem>();
+                }
+                foreach (var item in items)
+                {
+                    if (item != null && !string.IsNullOrEmpty(item.Id))
+                    {
+                        _itemCache[collectionName][item.Id] = item;
+                    }
+                }
+            }
+        }
+
+        public async Task LoadFullCollectionAsync(string collectionName)
+        {
+            lock (_cacheLock)
+            {
+                if (_fullyLoadedCollections.Contains(collectionName)) return;
+            }
+
+            // This loads all and caches them using GetAllAsync (which manages the lock/flag)
+            await GetAllAsync(collectionName);
+            
+            lock (_cacheLock)
+            {
+                _fullyLoadedCollections.Add(collectionName);
+            }
+        }
+
+        public async Task ForceReloadCollectionAsync(string collectionName)
+        {
+            lock (_cacheLock)
+            {
+                // Clear state to force reload
+                if (_fullyLoadedCollections.Contains(collectionName))
+                {
+                    _fullyLoadedCollections.Remove(collectionName);
+                }
+                if (_itemCache.ContainsKey(collectionName))
+                {
+                    _itemCache[collectionName].Clear();
+                }
+            }
+            // Load fresh
+            await LoadFullCollectionAsync(collectionName);
         }
 
         public async Task<List<DictionaryItem>> GetAllAsync(string collectionName)
         {
+            lock (_cacheLock)
+            {
+                // If already fully loaded, return from cache
+                if (_fullyLoadedCollections.Contains(collectionName) && _itemCache.ContainsKey(collectionName))
+                {
+                    return _itemCache[collectionName].Values
+                        .Where(i => !i.IsDeleted)
+                        .OrderBy(i => i.SourceTerm)
+                        .ToList();
+                }
+            }
+
             if (!_settings.Integration.UseFirebase || _firestoreDb == null)
             {
                  var memItems = GetMemoryCollection(collectionName)
@@ -115,14 +277,25 @@ namespace Zinote.Services
                 {
                     if (document.Exists)
                     {
-                        var item = document.ConvertTo<DictionaryItem>();
-                        item.Id = document.Id;
+                        var freshItem = document.ConvertTo<DictionaryItem>();
+                        freshItem.Id = document.Id;
                         
+                        // Update cache
+                        UpdateCachedItem(collectionName, freshItem);
+                        
+                        // Use cached item
+                        var item = GetCachedItem(collectionName, freshItem.Id);
+
                         if (!item.IsDeleted)
                         {
                             items.Add(item);
                         }
                     }
+                }
+                
+                lock (_cacheLock)
+                {
+                    _fullyLoadedCollections.Add(collectionName);
                 }
                 return items;
             }
@@ -141,6 +314,13 @@ namespace Zinote.Services
                 return await Task.FromResult(item);
             }
 
+             // Check Cache First
+            var cached = GetCachedItem(collectionName, id);
+            if (cached != null)
+            {
+                return cached;
+            }
+
             try
             {
                 var docRef = _firestoreDb.Collection(collectionName).Document(id);
@@ -148,9 +328,11 @@ namespace Zinote.Services
 
                 if (snapshot.Exists)
                 {
-                    var item = snapshot.ConvertTo<DictionaryItem>();
-                    item.Id = snapshot.Id;
-                    return item;
+                    var freshItem = snapshot.ConvertTo<DictionaryItem>();
+                    freshItem.Id = snapshot.Id;
+                    
+                    CacheItem(collectionName, freshItem);
+                    return freshItem;
                 }
                 return null;
             }
@@ -184,6 +366,9 @@ namespace Zinote.Services
                 var collection = _firestoreDb.Collection(collectionName);
                 var docRef = collection.Document(item.Id);
                 await docRef.SetAsync(item);
+                
+                // Add to cache
+                CacheItem(collectionName, item);
             }
             catch (Exception ex)
             {
@@ -215,6 +400,9 @@ namespace Zinote.Services
             {
                 var docRef = _firestoreDb.Collection(collectionName).Document(item.Id);
                 await docRef.SetAsync(item, SetOptions.Overwrite);
+                
+                // Update Cache
+                UpdateCachedItem(collectionName, item);
             }
             catch (Exception ex)
             {
@@ -249,6 +437,9 @@ namespace Zinote.Services
                     { "DeletedBy", _authService.CurrentUser?.Email ?? "Unknown" }
                 };
                 await docRef.UpdateAsync(updates);
+                
+                // Remove from cache or mark as deleted
+                MarkCachedItemDeleted(collectionName, id);
             }
             catch (Exception ex)
             {
@@ -258,24 +449,59 @@ namespace Zinote.Services
 
         public async Task<(List<DictionaryItem> Items, object LastDocument)> GetPaginatedAsync(string collectionName, int limit, object lastDocument = null)
         {
-             if (!_settings.Integration.UseFirebase || _firestoreDb == null)
+            bool useMemory = !_settings.Integration.UseFirebase || _firestoreDb == null;
+            bool isFullyLoaded = false;
+            
+            lock (_cacheLock)
             {
-                // Mimic pagination in memory
-                var list = GetMemoryCollection(collectionName)
+                isFullyLoaded = _fullyLoadedCollections.Contains(collectionName);
+            }
+
+             if (useMemory || isFullyLoaded)
+            {
+                List<DictionaryItem> list;
+                lock(_cacheLock)
+                {
+                    // Get from cache/memory safely inside lock
+                    IEnumerable<DictionaryItem> source = useMemory ? GetMemoryCollection(collectionName) : _itemCache[collectionName].Values;
+                    list = source
                             .Where(i => !i.IsDeleted)
                             .OrderBy(i => i.SourceTerm)
                             .ToList();
+                }
                 
                 int startIndex = 0;
                 if (lastDocument is int lastIndex)
                 {
                     startIndex = lastIndex + 1;
                 }
+                else if (lastDocument is DocumentSnapshot lastSnap) // Transition handling
+                {
+                    // We switched from Firestore to Memory mid-pagination.
+                    // Try to find the last item in the full sorted list to resume
+                    var lastId = lastSnap.Id;
+                    var foundIndex = list.FindIndex(i => i.Id == lastId);
+                    if (foundIndex >= 0)
+                    {
+                        startIndex = foundIndex + 1;
+                    }
+                    else
+                    {
+                        // Fallback: This is rare (maybe item deleted or not in cache yet?), reset to 0
+                        startIndex = 0; 
+                    }
+                }
 
                 var pagedItems = list.Skip(startIndex).Take(limit).ToList();
                 object nextLastDoc = pagedItems.Any() ? (startIndex + pagedItems.Count - 1) : null;
                 
                 return await Task.FromResult((pagedItems, nextLastDoc));
+            }
+
+            if (!_settings.Integration.UseFirebase || _firestoreDb == null)
+            {
+                // This block is now covered above but kept for structure mirroring if firestore fails
+                 return await Task.FromResult<(List<DictionaryItem>, object)>((new List<DictionaryItem>(), null));
             }
 
             try
@@ -299,8 +525,13 @@ namespace Zinote.Services
                     {
                         if (document.Exists)
                         {
-                            var item = document.ConvertTo<DictionaryItem>();
-                            item.Id = document.Id;
+                            var freshItem = document.ConvertTo<DictionaryItem>();
+                            freshItem.Id = document.Id;
+                            
+                            // Update cache and use cached instance
+                            UpdateCachedItem(collectionName, freshItem);
+                            var item = GetCachedItem(collectionName, freshItem.Id);
+
                             // Filter out soft-deleted items
                             if (!item.IsDeleted)
                             {
@@ -321,17 +552,41 @@ namespace Zinote.Services
 
         public async Task<List<DictionaryItem>> SearchAsync(string collectionName, string query)
         {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                var (all, _) = await GetPaginatedAsync(collectionName, 20, null);
+                return all;
+            }
+
+            bool useFirebase = _settings.Integration.UseFirebase && _firestoreDb != null;
+            bool isFullyLoaded = false;
+            
+            lock(_cacheLock)
+            {
+                 isFullyLoaded = _fullyLoadedCollections.Contains(collectionName);
+            }
+            
+            // Optimization: If collection is fully loaded, search memory.
+            
+            if (!useFirebase || isFullyLoaded)
+            {
+                List<DictionaryItem> results;
+                lock (_cacheLock)
+                {
+                    IEnumerable<DictionaryItem> source = !useFirebase ? GetMemoryCollection(collectionName) : _itemCache[collectionName].Values;
+                    
+                    // Case Insensitive Search (Flexible)
+                    results = source
+                            .Where(i => !i.IsDeleted && i.SourceTerm != null && i.SourceTerm.Contains(query, StringComparison.OrdinalIgnoreCase)) 
+                            .ToList();
+                }
+                return results;
+            }
+            
             if (!_settings.Integration.UseFirebase || _firestoreDb == null)
             {
-                 if (string.IsNullOrWhiteSpace(query))
-                {
-                    var (all, _) = await GetPaginatedAsync(collectionName, 20, null);
-                    return all;
-                }
-                
-                return GetMemoryCollection(collectionName)
-                        .Where(i => !i.IsDeleted && i.SourceTerm != null && i.SourceTerm.StartsWith(query, StringComparison.OrdinalIgnoreCase))
-                        .ToList();
+                 // Fallback for memory store covered above
+                 return new List<DictionaryItem>();
             }
             
             try
@@ -358,8 +613,12 @@ namespace Zinote.Services
                 {
                     if (document.Exists)
                     {
-                        var item = document.ConvertTo<DictionaryItem>();
-                        item.Id = document.Id;
+                        var freshItem = document.ConvertTo<DictionaryItem>();
+                        freshItem.Id = document.Id;
+                        
+                        UpdateCachedItem(collectionName, freshItem);
+                        var item = GetCachedItem(collectionName, freshItem.Id);
+
                         if (!item.IsDeleted)
                         {
                             results.Add(item);
@@ -427,6 +686,9 @@ namespace Zinote.Services
                         batch.Set(docRef, item);
                     }
                     await batch.CommitAsync();
+
+                    // Update Cache
+                    CacheItemsBatch(collectionName, batchItems);
                 }
             }
             catch (Exception ex)

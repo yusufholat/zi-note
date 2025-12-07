@@ -17,7 +17,6 @@ public partial class DictionaryListPage : ContentPage
     private readonly AuthService _authService;
     private readonly AppSettings _settings;
     private string _collectionName = string.Empty; // Initialized empty, set via navigation
-    private CancellationTokenSource _debounceCts;
 
     public string CollectionName
     {
@@ -40,42 +39,54 @@ public partial class DictionaryListPage : ContentPage
     private bool _isLoadingMore;
     private bool _isDetailedSearch = false; // Flag to check if we are in search mode
 
-    public DictionaryListPage(DataService dataService, ExportService exportService, ImportService importService, AuthService authService, AppSettings settings)
-    {
-        InitializeComponent();
-        _dataService = dataService;
-        _exportService = exportService;
-        _importService = importService;
-        _authService = authService;
-        _settings = settings;
-        BindingContext = this;
-        
-        // Initial setup
-        ItemsCollectionView.ItemsSource = _items;
-
-        LocalizationResourceManager.Instance.PropertyChanged += (sender, e) =>
+        public DictionaryListPage(DataService dataService, ExportService exportService, ImportService importService, AuthService authService, AppSettings settings)
         {
-            // Re-trigger title update when language changes
-             Title = _collectionName switch
+            InitializeComponent();
+            _dataService = dataService;
+            _exportService = exportService;
+            _importService = importService;
+            _authService = authService;
+            _settings = settings;
+            BindingContext = this;
+            
+            // Initial setup
+            ItemsCollectionView.ItemsSource = _items;
+
+            LocalizationResourceManager.Instance.PropertyChanged += (sender, e) =>
             {
-                "health_dictionary" => LocalizationResourceManager.Instance["HealthDict"],
-                "military_dictionary" => LocalizationResourceManager.Instance["MilitaryDict"],
-                _ => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_collectionName.Replace("_", " "))
+                // Re-trigger title update when language changes
+                 Title = _collectionName switch
+                {
+                    "health_dictionary" => LocalizationResourceManager.Instance["HealthDict"],
+                    "military_dictionary" => LocalizationResourceManager.Instance["MilitaryDict"],
+                    _ => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_collectionName.Replace("_", " "))
+                };
             };
-        };
-    }
+
+            MessagingCenter.Subscribe<ItemDetailPage, DictionaryItem>(this, Constants.MsgUpdateItem, (sender, item) => 
+            {
+                var existing = _items.FirstOrDefault(i => i.Id == item.Id);
+                if (existing != null)
+                {
+                    int index = _items.IndexOf(existing);
+                    _items[index] = item; // Force UI refresh
+                }
+            });
+        }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
         await _dataService.InitializeAsync();
+        
+        // Start loading the full collection in the background for caching strategy
+        _ = _dataService.LoadFullCollectionAsync(_collectionName);
 
         // Apply Configuration
         if (ImportButton != null) ImportButton.IsVisible = _settings.Features.EnableImport;
         if (ExportButton != null) ExportButton.IsVisible = _settings.Features.EnableExport;
         
         // Only load if empty or if needed. 
-        // If we want a fresh reload every time we appear (e.g. after adding item), we can clear and load.
         if (_items.Count == 0)
         {
              await LoadDataAsync(true);
@@ -135,33 +146,17 @@ public partial class DictionaryListPage : ContentPage
 
     private async void OnSearchBarTextChanged(object sender, TextChangedEventArgs e)
     {
-        _debounceCts?.Cancel();
-        _debounceCts = new CancellationTokenSource();
-        var token = _debounceCts.Token;
+        // Removed debounce delay for instant local search
+        var text = e.NewTextValue;
 
-        try
+        if (string.IsNullOrWhiteSpace(text))
         {
-            // Updated to 1000ms delay for optimization
-            await Task.Delay(1000, token);
-            if (!token.IsCancellationRequested)
-            {
-                var text = e.NewTextValue;
-
-                if (string.IsNullOrWhiteSpace(text))
-                {
-                    // Reset to initial paginated state
-                    await LoadDataAsync(true);
-                }
-                else if (text.Length >= 2) // Min 2 chars to search
-                {
-                    await PerformSearchAsync(text);
-                }
-                // If 1 char, do nothing (keep previous state)
-            }
+            // Reset to initial paginated state
+            await LoadDataAsync(true);
         }
-        catch (TaskCanceledException)
+        else if (text.Length >= 1) // Search on 1+ chars to be responsive
         {
-            // Ignore cancellation
+            await PerformSearchAsync(text);
         }
     }
 
@@ -195,10 +190,6 @@ public partial class DictionaryListPage : ContentPage
             
             // Deselect item without breaking binding
             ItemsCollectionView.SelectedItem = null;
-            
-            // Refresh list to show potential updates (e.g. edited item)
-            // Note: This resets pagination to page 1.
-            await LoadDataAsync(true); 
         }
     }
 
@@ -223,6 +214,21 @@ public partial class DictionaryListPage : ContentPage
                 await _dataService.DeleteAsync(_collectionName, id);
                 await LoadDataAsync(true); // Refresh list
             }
+        }
+    }
+
+    private async void OnRefreshClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            RefreshButton.IsEnabled = false; // Prevent double click
+            // Force reload full collection
+            await _dataService.ForceReloadCollectionAsync(_collectionName);
+            await LoadDataAsync(true); // Reset to page 1
+        }
+        finally
+        {
+            RefreshButton.IsEnabled = true;
         }
     }
 

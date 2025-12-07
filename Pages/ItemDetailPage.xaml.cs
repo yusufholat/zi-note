@@ -160,6 +160,7 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
                 await _dataService.UpdateAsync(_collectionName, _item);
             }
 
+            MessagingCenter.Send(this, Constants.MsgUpdateItem, _item);
             await Shell.Current.GoToAsync("..");
         }
         catch (Exception ex)

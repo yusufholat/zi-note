@@ -14,8 +14,13 @@
     </Shell.TitleView>
 
     <Grid RowDefinitions="Auto,Auto,*" Padding="15" RowSpacing="15">
-        <!-- Row 0: Export --> 
+        <!-- Row 0: Export/Import/Refresh --> 
         <HorizontalStackLayout Grid.Row="0" HorizontalOptions="End" Spacing="10">
+            <Button x:Name="RefreshButton" Text="↻" Clicked="OnRefreshClicked"
+                    BackgroundColor="{DynamicResource DynamicSecondaryButtonBg}" 
+                    TextColor="{DynamicResource DynamicButtonText}" FontAttributes="Bold" CornerRadius="8" HeightRequest="36" Padding="15,0"
+                    ToolTipProperties.Text="{helpers:Translate Refresh}"/>
+
             <Button x:Name="ImportButton" Text="{helpers:Translate ImportOptions}" Clicked="OnImportOptionsClicked" 
                     BackgroundColor="{DynamicResource DynamicSuccessButtonBg}" 
                     TextColor="{DynamicResource DynamicButtonText}" FontAttributes="Bold" CornerRadius="8" HeightRequest="36" Padding="15,0"/>
@@ -37,7 +42,7 @@
         <CollectionView x:Name="ItemsCollectionView" Grid.Row="2" SelectionMode="Single" SelectionChanged="OnSelectionChanged"
                         RemainingItemsThreshold="5" RemainingItemsThresholdReached="OnRemainingItemsThresholdReached">
             <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="5"/>
             </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:DictionaryItem">
