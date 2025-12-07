@@ -15,6 +15,7 @@ public partial class DictionaryListPage : ContentPage
     private readonly ExportService _exportService;
     private readonly ImportService _importService;
     private readonly AuthService _authService;
+    private readonly AppSettings _settings;
     private string _collectionName = string.Empty; // Initialized empty, set via navigation
     private CancellationTokenSource _debounceCts;
 
@@ -39,13 +40,14 @@ public partial class DictionaryListPage : ContentPage
     private bool _isLoadingMore;
     private bool _isDetailedSearch = false; // Flag to check if we are in search mode
 
-    public DictionaryListPage(DataService dataService, ExportService exportService, ImportService importService, AuthService authService)
+    public DictionaryListPage(DataService dataService, ExportService exportService, ImportService importService, AuthService authService, AppSettings settings)
     {
         InitializeComponent();
         _dataService = dataService;
         _exportService = exportService;
         _importService = importService;
         _authService = authService;
+        _settings = settings;
         BindingContext = this;
         
         // Initial setup
@@ -69,8 +71,8 @@ public partial class DictionaryListPage : ContentPage
         await _dataService.InitializeAsync();
 
         // Apply Configuration
-        if (ImportButton != null) ImportButton.IsVisible = Constants.EnableImport;
-        if (ExportButton != null) ExportButton.IsVisible = Constants.EnableExport;
+        if (ImportButton != null) ImportButton.IsVisible = _settings.Features.EnableImport;
+        if (ExportButton != null) ExportButton.IsVisible = _settings.Features.EnableExport;
         
         // Only load if empty or if needed. 
         // If we want a fresh reload every time we appear (e.g. after adding item), we can clear and load.
@@ -211,7 +213,7 @@ public partial class DictionaryListPage : ContentPage
         if (sender is Button button && button.CommandParameter is string id)
         {
             bool answer = await DisplayAlert(
-                Constants.AppName, 
+                _settings.General.AppName, 
                 "Are you sure you want to delete this item?", 
                 LocalizationResourceManager.Instance["Yes"], 
                 LocalizationResourceManager.Instance["No"]);
@@ -248,7 +250,7 @@ public partial class DictionaryListPage : ContentPage
 
                 if (!string.IsNullOrEmpty(filePath))
                 {
-                    await DisplayAlert(Constants.AppName, $"Data exported to:\n{filePath}", "OK");
+                    await DisplayAlert(_settings.General.AppName, $"Data exported to:\n{filePath}", "OK");
                 }
             }
             catch (Exception ex)
@@ -325,7 +327,7 @@ public partial class DictionaryListPage : ContentPage
                     if (items.Count > 0)
                     {
                          // Confirm
-                        bool confirm = await DisplayAlert(Constants.AppName, 
+                        bool confirm = await DisplayAlert(_settings.General.AppName, 
                             $"Found {items.Count} items. Do you want to import them into '{_collectionName}'?", 
                             LocalizationResourceManager.Instance["Yes"], 
                             LocalizationResourceManager.Instance["No"]);
@@ -333,13 +335,13 @@ public partial class DictionaryListPage : ContentPage
                         if (confirm)
                         {
                             await _dataService.AddBatchAsync(_collectionName, items);
-                             await DisplayAlert(Constants.AppName, "Import successful!", "OK");
+                             await DisplayAlert(_settings.General.AppName, "Import successful!", "OK");
                              await LoadDataAsync(true);
                         }
                     }
                     else
                     {
-                        await DisplayAlert(Constants.AppName, "No valid items found in the file.", "OK");
+                        await DisplayAlert(_settings.General.AppName, "No valid items found in the file.", "OK");
                     }
                 }
             }

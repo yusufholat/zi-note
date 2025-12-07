@@ -15,13 +15,15 @@ namespace Zinote.Services
     {
         private FirestoreDb _firestoreDb;
         private readonly AuthService _authService;
+        private readonly AppSettings _settings;
         
         // In-Memory Store: CollectionName -> List<DictionaryItem>
         private Dictionary<string, List<DictionaryItem>> _memoryStore = new Dictionary<string, List<DictionaryItem>>();
 
-        public DataService(AuthService authService)
+        public DataService(AuthService authService, AppSettings settings)
         {
             _authService = authService;
+            _settings = settings;
             // Initialize memory store with some dummy collections
             _memoryStore["health_dictionary"] = new List<DictionaryItem>();
             _memoryStore["military_dictionary"] = new List<DictionaryItem>();
@@ -29,7 +31,7 @@ namespace Zinote.Services
 
         public async Task InitializeAsync()
         {
-            if (!Constants.UseFirebase) return;
+            if (!_settings.Integration.UseFirebase) return;
 
             try
             {
@@ -95,7 +97,7 @@ namespace Zinote.Services
 
         public async Task<List<DictionaryItem>> GetAllAsync(string collectionName)
         {
-            if (!Constants.UseFirebase || _firestoreDb == null)
+            if (!_settings.Integration.UseFirebase || _firestoreDb == null)
             {
                  var memItems = GetMemoryCollection(collectionName)
                                 .Where(i => !i.IsDeleted)
@@ -133,7 +135,7 @@ namespace Zinote.Services
 
         public async Task<DictionaryItem> GetByIdAsync(string collectionName, string id)
         {
-            if (!Constants.UseFirebase || _firestoreDb == null)
+            if (!_settings.Integration.UseFirebase || _firestoreDb == null)
             {
                 var item = GetMemoryCollection(collectionName).FirstOrDefault(i => i.Id == id);
                 return await Task.FromResult(item);
@@ -170,7 +172,7 @@ namespace Zinote.Services
 
             if (string.IsNullOrEmpty(item.Id)) item.Id = Guid.NewGuid().ToString();
 
-            if (!Constants.UseFirebase || _firestoreDb == null)
+            if (!_settings.Integration.UseFirebase || _firestoreDb == null)
             {
                 GetMemoryCollection(collectionName).Add(item);
                 await Task.CompletedTask;
@@ -195,7 +197,7 @@ namespace Zinote.Services
             item.ModifiedAt = DateTime.UtcNow;
             item.ModifiedBy = _authService.CurrentUser?.Email ?? "Unknown";
 
-            if (!Constants.UseFirebase || _firestoreDb == null)
+            if (!_settings.Integration.UseFirebase || _firestoreDb == null)
             {
                 var list = GetMemoryCollection(collectionName);
                 var existing = list.FirstOrDefault(i => i.Id == item.Id);
@@ -222,7 +224,7 @@ namespace Zinote.Services
 
         public async Task DeleteAsync(string collectionName, string id)
         {
-            if (!Constants.UseFirebase || _firestoreDb == null)
+            if (!_settings.Integration.UseFirebase || _firestoreDb == null)
             {
                 var list = GetMemoryCollection(collectionName);
                 var existing = list.FirstOrDefault(i => i.Id == id);
@@ -256,7 +258,7 @@ namespace Zinote.Services
 
         public async Task<(List<DictionaryItem> Items, object LastDocument)> GetPaginatedAsync(string collectionName, int limit, object lastDocument = null)
         {
-             if (!Constants.UseFirebase || _firestoreDb == null)
+             if (!_settings.Integration.UseFirebase || _firestoreDb == null)
             {
                 // Mimic pagination in memory
                 var list = GetMemoryCollection(collectionName)
@@ -319,7 +321,7 @@ namespace Zinote.Services
 
         public async Task<List<DictionaryItem>> SearchAsync(string collectionName, string query)
         {
-            if (!Constants.UseFirebase || _firestoreDb == null)
+            if (!_settings.Integration.UseFirebase || _firestoreDb == null)
             {
                  if (string.IsNullOrWhiteSpace(query))
                 {
@@ -402,7 +404,7 @@ namespace Zinote.Services
                  item.IsDeleted = false;
              }
              
-            if (!Constants.UseFirebase || _firestoreDb == null)
+            if (!_settings.Integration.UseFirebase || _firestoreDb == null)
             {
                 GetMemoryCollection(collectionName).AddRange(items);
                 await Task.CompletedTask;

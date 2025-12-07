@@ -1,4 +1,5 @@
 using Zinote.Services;
+using Zinote.Models;
 
 namespace Zinote.Pages;
 
@@ -6,12 +7,15 @@ public partial class HubPage : ContentPage
 {
     private readonly DataService _dataService;
     private readonly AuthService _authService;
+    private readonly AppSettings _settings;
 
-    public HubPage(DataService dataService, AuthService authService)
+    public HubPage(DataService dataService, AuthService authService, AppSettings settings)
     {
         InitializeComponent();
         _dataService = dataService;
         _authService = authService;
+        _settings = settings;
+        MainHeader.TitleText = _settings.General.AppName;
     }
 
     protected override async void OnAppearing()

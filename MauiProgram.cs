@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using System.Reflection;
+using Zinote.Models;
 
 namespace Zinote;
 
@@ -7,6 +10,19 @@ public static class MauiProgram
 	public static MauiApp CreateMauiApp()
 	{
 		var builder = MauiApp.CreateBuilder();
+
+        var a = Assembly.GetExecutingAssembly();
+        using var stream = a.GetManifestResourceStream("Zinote.appsettings.json");
+
+        var config = new ConfigurationBuilder()
+            .AddJsonStream(stream)
+            .Build();
+
+        builder.Configuration.AddConfiguration(config);
+
+        var settings = config.GetRequiredSection("Settings").Get<AppSettings>();
+        builder.Services.AddSingleton(settings);
+
 		builder
 			.UseMauiApp<App>()
 			.ConfigureFonts(fonts =>

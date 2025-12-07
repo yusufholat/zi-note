@@ -6,7 +6,7 @@
              Background="{DynamicResource PageBackgroundBrush}">
 
     <Shell.TitleView>
-        <components:HeaderView TitleText="{x:Static helpers:Constants.AppName}" ShowLogo="False" />
+        <components:HeaderView x:Name="MainHeader" ShowLogo="False" />
     </Shell.TitleView>
     
     <ScrollView>
