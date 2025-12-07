@@ -10,6 +10,7 @@ namespace Zinote.Pages;
 public partial class ItemDetailPage : ContentPage, IQueryAttributable
 {
     private readonly DataService _dataService;
+    private readonly AuthService _authService;
     private DictionaryItem _item;
     private string _itemId;
     private string _collectionName = string.Empty;
@@ -26,10 +27,11 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
         set => _itemId = value;
     }
 
-    public ItemDetailPage(DataService dataService)
+    public ItemDetailPage(DataService dataService, AuthService authService)
     {
         InitializeComponent();
         _dataService = dataService;
+        _authService = authService;
     }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -81,26 +83,20 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
                     ForbiddenStateLabel.Text = _item.Forbidden ? LocalizationResourceManager.Instance["Yes"] : LocalizationResourceManager.Instance["No"];
                 });
             }
+
+            // Check Guest Mode to hide buttons
+            bool isGuest = _authService.CurrentUser?.IsGuest ?? false;
+            if (isGuest)
+            {
+                    Dispatcher.Dispatch(() => 
+                    {
+                        DisableInputs();
+                    });
+            }
         }
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"Failed to load item: {ex.Message}", "OK");
-        }
-        
-        // Check Guest Mode to hide buttons
-        var authService = Handler.MauiContext.Services.GetService<AuthService>();
-        bool isGuest = authService?.CurrentUser?.IsGuest ?? false;
-        if (isGuest)
-        {
-             Dispatcher.Dispatch(() => 
-             {
-                 // Assuming buttons are ID'd or we handle visibility differently.
-                 // Since I didn't add IDs to buttons in XAML, I should probably do that or use FindByName if possible.
-                 // OR simplest: just disable the Save functionality (handled above) 
-                 // and maybe disable inputs? 
-                 // Let's Disable Inputs for better UX
-                 DisableInputs();
-             });
         }
     }
 
@@ -120,8 +116,7 @@ public partial class ItemDetailPage : ContentPage, IQueryAttributable
     private async void OnSaveClicked(object sender, EventArgs e)
     {
         // Permission Check
-        var authService = Handler.MauiContext.Services.GetService<AuthService>();
-        if (authService != null && (authService.CurrentUser?.IsGuest ?? false))
+        if (_authService.CurrentUser?.IsGuest ?? false)
         {
             await DisplayAlert("Restricted", "Guest users cannot modify data.", "OK");
             return;

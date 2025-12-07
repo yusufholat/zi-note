@@ -9,6 +9,9 @@ namespace Zinote.Helpers
         // Navigation Parameters
         public const string NavItemId = "ItemId";
         public const string NavCollectionName = "CollectionName";
+
+        // Configuration
+        public static bool UseFirebase = false;
     }
 
     // Export/Import Types

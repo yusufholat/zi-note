@@ -15,14 +15,22 @@ namespace Zinote.Services
     {
         private FirestoreDb _firestoreDb;
         private readonly AuthService _authService;
+        
+        // In-Memory Store: CollectionName -> List<DictionaryItem>
+        private Dictionary<string, List<DictionaryItem>> _memoryStore = new Dictionary<string, List<DictionaryItem>>();
 
         public DataService(AuthService authService)
         {
             _authService = authService;
+            // Initialize memory store with some dummy collections
+            _memoryStore["health_dictionary"] = new List<DictionaryItem>();
+            _memoryStore["military_dictionary"] = new List<DictionaryItem>();
         }
 
         public async Task InitializeAsync()
         {
+            if (!Constants.UseFirebase) return;
+
             try
             {
                 // Path to the credentials file
@@ -76,53 +84,83 @@ namespace Zinote.Services
             }
         }
 
+        private List<DictionaryItem> GetMemoryCollection(string collectionName)
+        {
+            if (!_memoryStore.ContainsKey(collectionName))
+            {
+                _memoryStore[collectionName] = new List<DictionaryItem>();
+            }
+            return _memoryStore[collectionName];
+        }
+
         public async Task<List<DictionaryItem>> GetAllAsync(string collectionName)
         {
-            if (_firestoreDb == null) return new List<DictionaryItem>();
-
-            var collection = _firestoreDb.Collection(collectionName);
-            // Changed to client-side filtering to support legacy documents where "IsDeleted" field is missing.
-            // Server-side WhereEqualTo("IsDeleted", false) excludes missing fields.
-            var snapshot = await collection.GetSnapshotAsync();
-            
-            var items = new List<DictionaryItem>();
-            foreach (var document in snapshot.Documents)
+            if (!Constants.UseFirebase || _firestoreDb == null)
             {
-                if (document.Exists)
+                 var memItems = GetMemoryCollection(collectionName)
+                                .Where(i => !i.IsDeleted)
+                                .ToList();
+                return await Task.FromResult(memItems);
+            }
+
+            try 
+            {
+                var collection = _firestoreDb.Collection(collectionName);
+                var snapshot = await collection.GetSnapshotAsync();
+                
+                var items = new List<DictionaryItem>();
+                foreach (var document in snapshot.Documents)
                 {
-                    var item = document.ConvertTo<DictionaryItem>();
-                    item.Id = document.Id;
-                    
-                    // Filter out soft-deleted items (treat null as false)
-                    if (!item.IsDeleted)
+                    if (document.Exists)
                     {
-                        items.Add(item);
+                        var item = document.ConvertTo<DictionaryItem>();
+                        item.Id = document.Id;
+                        
+                        if (!item.IsDeleted)
+                        {
+                            items.Add(item);
+                        }
                     }
                 }
+                return items;
             }
-            return items;
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Firestore Error (GetAll): {ex.Message}");
+                return new List<DictionaryItem>();
+            }
         }
 
         public async Task<DictionaryItem> GetByIdAsync(string collectionName, string id)
         {
-            if (_firestoreDb == null) return null;
-
-            var docRef = _firestoreDb.Collection(collectionName).Document(id);
-            var snapshot = await docRef.GetSnapshotAsync();
-
-            if (snapshot.Exists)
+            if (!Constants.UseFirebase || _firestoreDb == null)
             {
-                var item = snapshot.ConvertTo<DictionaryItem>();
-                item.Id = snapshot.Id;
-                return item;
+                var item = GetMemoryCollection(collectionName).FirstOrDefault(i => i.Id == id);
+                return await Task.FromResult(item);
             }
-            return null;
+
+            try
+            {
+                var docRef = _firestoreDb.Collection(collectionName).Document(id);
+                var snapshot = await docRef.GetSnapshotAsync();
+
+                if (snapshot.Exists)
+                {
+                    var item = snapshot.ConvertTo<DictionaryItem>();
+                    item.Id = snapshot.Id;
+                    return item;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                 System.Diagnostics.Debug.WriteLine($"Firestore Error (GetById): {ex.Message}");
+                 return null;
+            }
         }
 
         public async Task AddAsync(string collectionName, DictionaryItem item)
         {
-            if (_firestoreDb == null) return;
-
             // Audit
             item.CreatedAt = DateTime.UtcNow;
             item.CreatedBy = _authService.CurrentUser?.Email ?? "Unknown";
@@ -130,121 +168,209 @@ namespace Zinote.Services
             item.ModifiedBy = item.CreatedBy;
             item.IsDeleted = false;
 
-            var collection = _firestoreDb.Collection(collectionName);
-            var docRef = collection.Document(item.Id);
-            await docRef.SetAsync(item);
+            if (string.IsNullOrEmpty(item.Id)) item.Id = Guid.NewGuid().ToString();
+
+            if (!Constants.UseFirebase || _firestoreDb == null)
+            {
+                GetMemoryCollection(collectionName).Add(item);
+                await Task.CompletedTask;
+                return;
+            }
+
+            try
+            {
+                var collection = _firestoreDb.Collection(collectionName);
+                var docRef = collection.Document(item.Id);
+                await docRef.SetAsync(item);
+            }
+            catch (Exception ex)
+            {
+                 System.Diagnostics.Debug.WriteLine($"Firestore Error (Add): {ex.Message}");
+            }
         }
 
         public async Task UpdateAsync(string collectionName, DictionaryItem item)
         {
-            if (_firestoreDb == null) return;
-
             // Audit
             item.ModifiedAt = DateTime.UtcNow;
             item.ModifiedBy = _authService.CurrentUser?.Email ?? "Unknown";
 
-            var docRef = _firestoreDb.Collection(collectionName).Document(item.Id);
-            await docRef.SetAsync(item, SetOptions.Overwrite);
+            if (!Constants.UseFirebase || _firestoreDb == null)
+            {
+                var list = GetMemoryCollection(collectionName);
+                var existing = list.FirstOrDefault(i => i.Id == item.Id);
+                if (existing != null)
+                {
+                    // Replace
+                    list.Remove(existing);
+                    list.Add(item);
+                }
+                await Task.CompletedTask;
+                return;
+            }
+
+            try
+            {
+                var docRef = _firestoreDb.Collection(collectionName).Document(item.Id);
+                await docRef.SetAsync(item, SetOptions.Overwrite);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Firestore Error (Update): {ex.Message}");
+            }
         }
 
         public async Task DeleteAsync(string collectionName, string id)
         {
-            if (_firestoreDb == null) return;
-
-            // Soft Delete
-            var docRef = _firestoreDb.Collection(collectionName).Document(id);
-            var updates = new Dictionary<string, object>
+            if (!Constants.UseFirebase || _firestoreDb == null)
             {
-                { "IsDeleted", true },
-                { "DeletedAt", DateTime.UtcNow },
-                { "DeletedBy", _authService.CurrentUser?.Email ?? "Unknown" }
-            };
-            await docRef.UpdateAsync(updates);
+                var list = GetMemoryCollection(collectionName);
+                var existing = list.FirstOrDefault(i => i.Id == id);
+                if (existing != null)
+                {
+                    existing.IsDeleted = true;
+                    existing.DeletedAt = DateTime.UtcNow;
+                    existing.DeletedBy = _authService.CurrentUser?.Email ?? "Unknown";
+                }
+                await Task.CompletedTask;
+                return;
+            }
+
+            try
+            {
+                // Soft Delete
+                var docRef = _firestoreDb.Collection(collectionName).Document(id);
+                var updates = new Dictionary<string, object>
+                {
+                    { "IsDeleted", true },
+                    { "DeletedAt", DateTime.UtcNow },
+                    { "DeletedBy", _authService.CurrentUser?.Email ?? "Unknown" }
+                };
+                await docRef.UpdateAsync(updates);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Firestore Error (Delete): {ex.Message}");
+            }
         }
 
         public async Task<(List<DictionaryItem> Items, object LastDocument)> GetPaginatedAsync(string collectionName, int limit, object lastDocument = null)
         {
-            if (_firestoreDb == null) return (new List<DictionaryItem>(), null);
-
-            var collection = _firestoreDb.Collection(collectionName);
-            var query = collection.OrderBy("SourceTerm").Limit(limit);
-
-            if (lastDocument is DocumentSnapshot lastSnapshot)
+             if (!Constants.UseFirebase || _firestoreDb == null)
             {
-                query = query.StartAfter(lastSnapshot);
+                // Mimic pagination in memory
+                var list = GetMemoryCollection(collectionName)
+                            .Where(i => !i.IsDeleted)
+                            .OrderBy(i => i.SourceTerm)
+                            .ToList();
+                
+                int startIndex = 0;
+                if (lastDocument is int lastIndex)
+                {
+                    startIndex = lastIndex + 1;
+                }
+
+                var pagedItems = list.Skip(startIndex).Take(limit).ToList();
+                object nextLastDoc = pagedItems.Any() ? (startIndex + pagedItems.Count - 1) : null;
+                
+                return await Task.FromResult((pagedItems, nextLastDoc));
             }
 
-            var snapshot = await query.GetSnapshotAsync();
-            var items = new List<DictionaryItem>();
-            DocumentSnapshot lastDoc = null;
-
-            if (snapshot.Count > 0)
+            try
             {
-                lastDoc = snapshot.Documents[snapshot.Count - 1];
+                var collection = _firestoreDb.Collection(collectionName);
+                var query = collection.OrderBy("SourceTerm").Limit(limit);
+
+                if (lastDocument is DocumentSnapshot lastSnapshot)
+                {
+                    query = query.StartAfter(lastSnapshot);
+                }
+
+                var snapshot = await query.GetSnapshotAsync();
+                var items = new List<DictionaryItem>();
+                DocumentSnapshot lastDoc = null;
+
+                if (snapshot.Count > 0)
+                {
+                    lastDoc = snapshot.Documents[snapshot.Count - 1];
+                    foreach (var document in snapshot.Documents)
+                    {
+                        if (document.Exists)
+                        {
+                            var item = document.ConvertTo<DictionaryItem>();
+                            item.Id = document.Id;
+                            // Filter out soft-deleted items
+                            if (!item.IsDeleted)
+                            {
+                                items.Add(item);
+                            }
+                        }
+                    }
+                }
+
+                return (items, lastDoc);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Firestore Error (GetPaginated): {ex.Message}");
+                return (new List<DictionaryItem>(), null);
+            }
+        }
+
+        public async Task<List<DictionaryItem>> SearchAsync(string collectionName, string query)
+        {
+            if (!Constants.UseFirebase || _firestoreDb == null)
+            {
+                 if (string.IsNullOrWhiteSpace(query))
+                {
+                    var (all, _) = await GetPaginatedAsync(collectionName, 20, null);
+                    return all;
+                }
+                
+                return GetMemoryCollection(collectionName)
+                        .Where(i => !i.IsDeleted && i.SourceTerm != null && i.SourceTerm.StartsWith(query, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+            }
+            
+            try
+            {
+                var collection = _firestoreDb.Collection(collectionName);
+
+                // Optimization: If query is empty, usually we shouldn't be here in this new flow, but safe fallback
+                if (string.IsNullOrWhiteSpace(query))
+                {
+                    // Just get first batch if empty search
+                    var (items, _) = await GetPaginatedAsync(collectionName, 20, null);
+                    return items;
+                }
+                
+                var endQuery = query + "\uf8ff";
+                var queryRef = collection
+                    .WhereGreaterThanOrEqualTo("SourceTerm", query)
+                    .WhereLessThanOrEqualTo("SourceTerm", endQuery);
+
+                var snapshot = await queryRef.GetSnapshotAsync();
+                
+                var results = new List<DictionaryItem>();
                 foreach (var document in snapshot.Documents)
                 {
                     if (document.Exists)
                     {
                         var item = document.ConvertTo<DictionaryItem>();
                         item.Id = document.Id;
-                         // Filter out soft-deleted items (treat null as false)
                         if (!item.IsDeleted)
                         {
-                            items.Add(item);
+                            results.Add(item);
                         }
                     }
                 }
+                return results;
             }
-
-            return (items, lastDoc);
-        }
-
-        public async Task<List<DictionaryItem>> SearchAsync(string collectionName, string query)
-        {
-            if (_firestoreDb == null) return new List<DictionaryItem>();
-            
-            var collection = _firestoreDb.Collection(collectionName);
-
-            // Optimization: If query is empty, usually we shouldn't be here in this new flow, but safe fallback
-            if (string.IsNullOrWhiteSpace(query))
+            catch (Exception ex)
             {
-                // Just get first batch if empty search
-               var (items, _) = await GetPaginatedAsync(collectionName, 20, null);
-               return items;
+                System.Diagnostics.Debug.WriteLine($"Firestore Error (Search): {ex.Message}");
+                return new List<DictionaryItem>();
             }
-
-            // Server-side Prefix Search on SourceTerm
-            // Note: This matches "Startswith". 
-            // Case sensitivity depends on how data is stored. Firestore exact matches are case sensitive.
-            // If we stored exact casing, this might miss "apple" if searching "App". 
-            // For now, we assume user types correct case or we standardise storage later.
-            // Standard approach: Use a "SourceTerm_Lower" field. But user didn't ask for schema change yet.
-            // We will trust standard behaviour for now.
-            
-            // Note: We cannot filter IsDeleted=false AND do a range query on SourceTerm without composite index.
-            // So we might fetch deleted items too and filter in memory.
-            
-            var endQuery = query + "\uf8ff";
-            var queryRef = collection
-                .WhereGreaterThanOrEqualTo("SourceTerm", query)
-                .WhereLessThanOrEqualTo("SourceTerm", endQuery);
-
-            var snapshot = await queryRef.GetSnapshotAsync();
-            
-            var results = new List<DictionaryItem>();
-            foreach (var document in snapshot.Documents)
-            {
-                if (document.Exists)
-                {
-                     var item = document.ConvertTo<DictionaryItem>();
-                     item.Id = document.Id;
-                     if (!item.IsDeleted)
-                     {
-                         results.Add(item);
-                     }
-                }
-            }
-            return results;
         }
 
 
@@ -263,32 +389,47 @@ namespace Zinote.Services
 
         public async Task AddBatchAsync(string collectionName, List<DictionaryItem> items)
         {
-            if (_firestoreDb == null || items == null || !items.Any()) return;
+            if (items == null || !items.Any()) return;
 
-            var collection = _firestoreDb.Collection(collectionName);
-            var batchSize = 500;
-
-            for (int i = 0; i < items.Count; i += batchSize)
+            // Prepare items
+             foreach (var item in items)
+             {
+                 if (string.IsNullOrEmpty(item.Id)) item.Id = Guid.NewGuid().ToString();
+                 item.CreatedAt = DateTime.UtcNow;
+                 item.CreatedBy = _authService.CurrentUser?.Email ?? "Unknown";
+                 item.ModifiedAt = DateTime.UtcNow;
+                 item.ModifiedBy = item.CreatedBy;
+                 item.IsDeleted = false;
+             }
+             
+            if (!Constants.UseFirebase || _firestoreDb == null)
             {
-                var batch = _firestoreDb.StartBatch();
-                var batchItems = items.Skip(i).Take(batchSize);
+                GetMemoryCollection(collectionName).AddRange(items);
+                await Task.CompletedTask;
+                return;
+            }
 
-                foreach (var item in batchItems)
+            try
+            {
+                var collection = _firestoreDb.Collection(collectionName);
+                var batchSize = 500;
+
+                for (int i = 0; i < items.Count; i += batchSize)
                 {
-                    // Ensure ID
-                    if (string.IsNullOrEmpty(item.Id)) item.Id = Guid.NewGuid().ToString();
+                    var batch = _firestoreDb.StartBatch();
+                    var batchItems = items.Skip(i).Take(batchSize);
 
-                    // Audit - reusing logic from AddAsync
-                    item.CreatedAt = DateTime.UtcNow;
-                    item.CreatedBy = _authService.CurrentUser?.Email ?? "Unknown";
-                    item.ModifiedAt = DateTime.UtcNow;
-                    item.ModifiedBy = item.CreatedBy;
-                    item.IsDeleted = false;
-
-                    var docRef = collection.Document(item.Id);
-                    batch.Set(docRef, item);
+                    foreach (var item in batchItems)
+                    {
+                        var docRef = collection.Document(item.Id);
+                        batch.Set(docRef, item);
+                    }
+                    await batch.CommitAsync();
                 }
-                await batch.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                 System.Diagnostics.Debug.WriteLine($"Firestore Error (AddBatch): {ex.Message}");
             }
         }
     }
